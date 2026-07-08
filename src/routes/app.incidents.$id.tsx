@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { getIncident, formatTs, formatRelative } from "@/lib/mock-data";
+import { getIncident, formatTs, formatRelative, type Incident } from "@/lib/mock-data";
 import { SeverityBadge, StatusPill } from "@/components/severity";
 import { ArrowLeft, Brain, CheckCircle2, AlertTriangle, XCircle, Sparkles } from "lucide-react";
 
@@ -79,7 +79,7 @@ function IncidentDetail() {
                   Similar past incidents (vector retrieval)
                 </div>
                 <ul className="mt-2 space-y-1.5">
-                  {inc.similar_incidents.map((s) => (
+                  {inc.similar_incidents.map((s: Incident["similar_incidents"][number]) => (
                     <li
                       key={s.id}
                       className="flex items-center gap-3 rounded-md border border-border bg-panel px-3 py-2 text-[12.5px]"
@@ -125,7 +125,7 @@ function IncidentDetail() {
         <aside className="rounded-lg border border-border bg-panel/50 p-4">
           <h3 className="text-sm font-semibold">Timeline</h3>
           <ol className="mt-3 space-y-4 border-l border-border pl-4">
-            {inc.timeline.map((t, i) => (
+            {inc.timeline.map((t: Incident["timeline"][number], i: number) => (
               <li key={i} className="relative">
                 <span className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-background" />
                 <div className="text-[11px] font-mono-tech text-muted-foreground">{formatTs(t.ts)}</div>
