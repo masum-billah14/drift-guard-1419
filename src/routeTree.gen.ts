@@ -9,38 +9,284 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SecurityRouteImport } from './routes/security'
+import { Route as PresentationRouteImport } from './routes/presentation'
+import { Route as PitchdeckRouteImport } from './routes/pitchdeck'
+import { Route as DemoUserRouteImport } from './routes/demo-user'
+import { Route as DemoAdminRouteImport } from './routes/demo-admin'
+import { Route as DataRouteImport } from './routes/data'
+import { Route as AuditRouteImport } from './routes/audit'
+import { Route as ArchitectureRouteImport } from './routes/architecture'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppIncidentsIdRouteImport } from './routes/app.incidents.$id'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PresentationRoute = PresentationRouteImport.update({
+  id: '/presentation',
+  path: '/presentation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PitchdeckRoute = PitchdeckRouteImport.update({
+  id: '/pitchdeck',
+  path: '/pitchdeck',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoUserRoute = DemoUserRouteImport.update({
+  id: '/demo-user',
+  path: '/demo-user',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoAdminRoute = DemoAdminRouteImport.update({
+  id: '/demo-admin',
+  path: '/demo-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataRoute = DataRouteImport.update({
+  id: '/data',
+  path: '/data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditRoute = AuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArchitectureRoute = ArchitectureRouteImport.update({
+  id: '/architecture',
+  path: '/architecture',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppIncidentsIdRoute = AppIncidentsIdRouteImport.update({
+  id: '/incidents/$id',
+  path: '/incidents/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/app': typeof AppRouteWithChildren
+  '/architecture': typeof ArchitectureRoute
+  '/audit': typeof AuditRoute
+  '/data': typeof DataRoute
+  '/demo-admin': typeof DemoAdminRoute
+  '/demo-user': typeof DemoUserRoute
+  '/pitchdeck': typeof PitchdeckRoute
+  '/presentation': typeof PresentationRoute
+  '/security': typeof SecurityRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/app/': typeof AppIndexRoute
+  '/app/incidents/$id': typeof AppIncidentsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/architecture': typeof ArchitectureRoute
+  '/audit': typeof AuditRoute
+  '/data': typeof DataRoute
+  '/demo-admin': typeof DemoAdminRoute
+  '/demo-user': typeof DemoUserRoute
+  '/pitchdeck': typeof PitchdeckRoute
+  '/presentation': typeof PresentationRoute
+  '/security': typeof SecurityRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/app': typeof AppIndexRoute
+  '/app/incidents/$id': typeof AppIncidentsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/app': typeof AppRouteWithChildren
+  '/architecture': typeof ArchitectureRoute
+  '/audit': typeof AuditRoute
+  '/data': typeof DataRoute
+  '/demo-admin': typeof DemoAdminRoute
+  '/demo-user': typeof DemoUserRoute
+  '/pitchdeck': typeof PitchdeckRoute
+  '/presentation': typeof PresentationRoute
+  '/security': typeof SecurityRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/app/': typeof AppIndexRoute
+  '/app/incidents/$id': typeof AppIncidentsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/app'
+    | '/architecture'
+    | '/audit'
+    | '/data'
+    | '/demo-admin'
+    | '/demo-user'
+    | '/pitchdeck'
+    | '/presentation'
+    | '/security'
+    | '/sitemap.xml'
+    | '/app/'
+    | '/app/incidents/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/architecture'
+    | '/audit'
+    | '/data'
+    | '/demo-admin'
+    | '/demo-user'
+    | '/pitchdeck'
+    | '/presentation'
+    | '/security'
+    | '/sitemap.xml'
+    | '/app'
+    | '/app/incidents/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/app'
+    | '/architecture'
+    | '/audit'
+    | '/data'
+    | '/demo-admin'
+    | '/demo-user'
+    | '/pitchdeck'
+    | '/presentation'
+    | '/security'
+    | '/sitemap.xml'
+    | '/app/'
+    | '/app/incidents/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  AppRoute: typeof AppRouteWithChildren
+  ArchitectureRoute: typeof ArchitectureRoute
+  AuditRoute: typeof AuditRoute
+  DataRoute: typeof DataRoute
+  DemoAdminRoute: typeof DemoAdminRoute
+  DemoUserRoute: typeof DemoUserRoute
+  PitchdeckRoute: typeof PitchdeckRoute
+  PresentationRoute: typeof PresentationRoute
+  SecurityRoute: typeof SecurityRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/presentation': {
+      id: '/presentation'
+      path: '/presentation'
+      fullPath: '/presentation'
+      preLoaderRoute: typeof PresentationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pitchdeck': {
+      id: '/pitchdeck'
+      path: '/pitchdeck'
+      fullPath: '/pitchdeck'
+      preLoaderRoute: typeof PitchdeckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo-user': {
+      id: '/demo-user'
+      path: '/demo-user'
+      fullPath: '/demo-user'
+      preLoaderRoute: typeof DemoUserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo-admin': {
+      id: '/demo-admin'
+      path: '/demo-admin'
+      fullPath: '/demo-admin'
+      preLoaderRoute: typeof DemoAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data': {
+      id: '/data'
+      path: '/data'
+      fullPath: '/data'
+      preLoaderRoute: typeof DataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit': {
+      id: '/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/architecture': {
+      id: '/architecture'
+      path: '/architecture'
+      fullPath: '/architecture'
+      preLoaderRoute: typeof ArchitectureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +294,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/incidents/$id': {
+      id: '/app/incidents/$id'
+      path: '/incidents/$id'
+      fullPath: '/app/incidents/$id'
+      preLoaderRoute: typeof AppIncidentsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppIndexRoute: typeof AppIndexRoute
+  AppIncidentsIdRoute: typeof AppIncidentsIdRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppIndexRoute: AppIndexRoute,
+  AppIncidentsIdRoute: AppIncidentsIdRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  AppRoute: AppRouteWithChildren,
+  ArchitectureRoute: ArchitectureRoute,
+  AuditRoute: AuditRoute,
+  DataRoute: DataRoute,
+  DemoAdminRoute: DemoAdminRoute,
+  DemoUserRoute: DemoUserRoute,
+  PitchdeckRoute: PitchdeckRoute,
+  PresentationRoute: PresentationRoute,
+  SecurityRoute: SecurityRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
