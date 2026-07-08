@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -45,6 +45,3 @@ export function DocShell({
     </div>
   );
 }
-
-// Re-export helper as route utility (no route defined here)
-export const Route = createFileRoute("/_doc-shell")({ component: () => null });
