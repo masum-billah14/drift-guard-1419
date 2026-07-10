@@ -77,21 +77,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SecureAI — AI-Powered Security Operations Copilot" },
+      { title: "SecureAI — AI Security Operations Copilot for lean teams" },
       {
         name: "description",
         content:
-          "SecureAI is an AI security copilot for lean IT teams: real-time detection, explainable AI reasoning, and automated response — without a 24/7 SOC.",
+          "SMEs get breached because they can't afford 24/7 SOC. SecureAI's AI agents detect anomalies, explain why, and respond in seconds.",
       },
       { name: "author", content: "SecureAI" },
-      { property: "og:title", content: "SecureAI — AI-Powered Security Operations Copilot" },
+      { property: "og:title", content: "SecureAI — AI Security Operations Copilot for lean teams" },
       {
         property: "og:description",
         content:
-          "Real-time monitoring with AI agents that detect anomalies, explain their reasoning, and respond automatically.",
+          "SMEs get breached because they can't afford 24/7 SOC. SecureAI's AI agents detect anomalies, explain why, and respond in seconds.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "SecureAI — AI Security Operations Copilot for lean teams" },
+      { name: "twitter:description", content: "SMEs get breached because they can't afford 24/7 SOC. SecureAI's AI agents detect anomalies, explain why, and respond in seconds." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/418d5a68-0747-4c6a-ba45-af5776db88d4/id-preview-d782535b--aaad826e-baae-406b-8f7d-8d6dff424110.lovable.app-1783540683705.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/418d5a68-0747-4c6a-ba45-af5776db88d4/id-preview-d782535b--aaad826e-baae-406b-8f7d-8d6dff424110.lovable.app-1783540683705.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
