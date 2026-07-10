@@ -2,7 +2,6 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   LayoutDashboard,
-  ShieldAlert,
   Bot,
   Database,
   Settings,
@@ -11,6 +10,8 @@ import {
   Network,
   LogOut,
   ShieldCheck,
+  Presentation,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,15 +36,19 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   const nav = [
-    { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { to: "/app", label: "Incidents", icon: ShieldAlert, hash: "#incidents" },
-    { to: "/data", label: "Data Sources", icon: Database },
+    { to: "/app", label: "Console", icon: LayoutDashboard },
+    { to: "/data", label: "Data sources", icon: Database },
     { to: "/architecture", label: "Architecture", icon: Network },
     { to: "/security", label: "Security", icon: Lock },
     { to: "/audit", label: "Audit", icon: FileCheck2 },
   ];
 
-  const adminNav = [{ to: "/admin", label: "Admin", icon: Settings }];
+  const storyNav = [
+    { to: "/presentation", label: "The story", icon: BookOpen },
+    { to: "/pitchdeck", label: "Pitch deck", icon: Presentation },
+  ];
+
+  const adminNav = [{ to: "/admin", label: "Admin panel", icon: Settings }];
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
