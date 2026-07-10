@@ -364,7 +364,7 @@ function UsersTab() {
                 <td className="px-3 py-2 font-medium">{u.name}</td>
                 <td className="px-3 py-2 font-mono-tech text-muted-foreground">{u.email}</td>
                 <td className="px-3 py-2">
-                  <span className={cn("rounded-sm border px-1.5 py-px text-[10.5px] font-mono-tech uppercase tracking-wider", u.role === "admin" ? "border-primary/50 text-primary" : "border-border text-muted-foreground")}>
+                  <span className={cn("rounded-sm border px-1.5 py-px text-[10.5px] font-mono-tech uppercase tracking-wider", u.role === "Admin" ? "border-primary/50 text-primary" : "border-border text-muted-foreground")}>
                     {u.role}
                   </span>
                 </td>
