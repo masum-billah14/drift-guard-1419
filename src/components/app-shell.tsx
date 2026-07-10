@@ -2,7 +2,6 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   LayoutDashboard,
-  ShieldAlert,
   Bot,
   Database,
   Settings,
@@ -11,6 +10,8 @@ import {
   Network,
   LogOut,
   ShieldCheck,
+  Presentation,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,15 +36,19 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   const nav = [
-    { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { to: "/app", label: "Incidents", icon: ShieldAlert, hash: "#incidents" },
-    { to: "/data", label: "Data Sources", icon: Database },
+    { to: "/app", label: "Console", icon: LayoutDashboard },
+    { to: "/data", label: "Data sources", icon: Database },
     { to: "/architecture", label: "Architecture", icon: Network },
     { to: "/security", label: "Security", icon: Lock },
     { to: "/audit", label: "Audit", icon: FileCheck2 },
   ];
 
-  const adminNav = [{ to: "/admin", label: "Admin", icon: Settings }];
+  const storyNav = [
+    { to: "/presentation", label: "The story", icon: BookOpen },
+    { to: "/pitchdeck", label: "Pitch deck", icon: Presentation },
+  ];
+
+  const adminNav = [{ to: "/admin", label: "Admin panel", icon: Settings }];
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
@@ -59,13 +64,15 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
 
         <nav className="flex-1 space-y-0.5 p-2">
+          <div className="mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Operations
+          </div>
           {nav.map((item) => {
-            const active = item.exact ? pathname === item.to : pathname.startsWith(item.to) && !item.hash;
+            const active = item.to === "/app" ? pathname === "/app" : pathname.startsWith(item.to);
             return (
               <Link
                 key={item.label}
                 to={item.to}
-                hash={item.hash?.slice(1)}
                 className={cn(
                   "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors",
                   active
@@ -78,9 +85,32 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
+
+          <div className="mt-4 mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Judging
+          </div>
+          {storyNav.map((item) => {
+            const active = pathname.startsWith(item.to);
+            return (
+              <Link
+                key={item.label}
+                to={item.to}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors",
+                  active
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+                )}
+              >
+                <item.icon className="h-4 w-4 shrink-0" />
+                <span className="truncate">{item.label}</span>
+              </Link>
+            );
+          })}
+
           {role === "admin" && (
             <>
-              <div className="mt-4 px-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="mt-4 mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Admin
               </div>
               {adminNav.map((item) => {
