@@ -341,3 +341,136 @@ export function formatTs(iso: string): string {
   const d = new Date(iso);
   return d.toISOString().replace("T", " ").slice(0, 19) + "Z";
 }
+
+// ============ Admin panel: hosts, rules, AI config, health, audit ============
+
+export interface HostRow {
+  id: string;
+  hostname: string;
+  ip: string;
+  os: "Ubuntu 22.04" | "Debian 12" | "Windows Server 2022" | "macOS 14" | "Alpine 3.19";
+  role: "web" | "db" | "worker" | "endpoint" | "gateway";
+  agent_version: string;
+  status: "healthy" | "degraded" | "offline";
+  cpu: number; // 0-100
+  mem: number; // 0-100
+  last_seen: string;
+  baseline_summary: string;
+}
+
+export const hosts: HostRow[] = [
+  { id: "h-01", hostname: "prod-web-01",  ip: "10.0.4.11", os: "Ubuntu 22.04", role: "web",      agent_version: "1.8.2", status: "healthy",  cpu: 34, mem: 61, last_seen: "2026-07-10T09:41:12Z", baseline_summary: "avg 210 req/s · 4 users/day admin ssh" },
+  { id: "h-02", hostname: "prod-web-02",  ip: "10.0.4.12", os: "Ubuntu 22.04", role: "web",      agent_version: "1.8.2", status: "healthy",  cpu: 41, mem: 58, last_seen: "2026-07-10T09:41:08Z", baseline_summary: "avg 205 req/s · 4 users/day admin ssh" },
+  { id: "h-03", hostname: "prod-db-01",   ip: "10.0.6.21", os: "Debian 12",    role: "db",       agent_version: "1.8.2", status: "degraded", cpu: 78, mem: 84, last_seen: "2026-07-10T09:40:55Z", baseline_summary: "read 12k qps · 2 admin sessions/wk" },
+  { id: "h-04", hostname: "corp-dc-01",   ip: "10.0.1.5",  os: "Windows Server 2022", role: "gateway",  agent_version: "1.8.1", status: "healthy",  cpu: 22, mem: 47, last_seen: "2026-07-10T09:41:14Z", baseline_summary: "peak logon 08:30-09:30 UTC" },
+  { id: "h-05", hostname: "worker-eu-3",  ip: "10.0.8.33", os: "Alpine 3.19",  role: "worker",   agent_version: "1.8.2", status: "healthy",  cpu: 55, mem: 40, last_seen: "2026-07-10T09:41:10Z", baseline_summary: "batch cadence 15m · zero human logins" },
+  { id: "h-06", hostname: "laptop-jchen", ip: "10.12.2.7", os: "macOS 14",     role: "endpoint", agent_version: "1.8.2", status: "healthy",  cpu: 12, mem: 38, last_seen: "2026-07-10T09:39:41Z", baseline_summary: "office hours 08-19 CET" },
+  { id: "h-07", hostname: "kiosk-berlin", ip: "10.14.9.4", os: "Ubuntu 22.04", role: "endpoint", agent_version: "1.7.9", status: "offline",  cpu: 0,  mem: 0,  last_seen: "2026-07-09T21:04:02Z", baseline_summary: "kiosk mode · 24/7 uptime expected" },
+];
+
+// MITRE ATT&CK tag helper — attach to incidents by id
+export const mitreByIncident: Record<string, { id: string; name: string; tactic: string }[]> = {
+  "INC-8842": [
+    { id: "T1110.001", name: "Password Guessing", tactic: "Credential Access" },
+    { id: "T1078",     name: "Valid Accounts",    tactic: "Initial Access" },
+  ],
+  "INC-8841": [
+    { id: "T1046",     name: "Network Service Scanning", tactic: "Discovery" },
+  ],
+  "INC-8840": [
+    { id: "T1531",     name: "Account Access Removal",   tactic: "Impact" },
+    { id: "T1078.004", name: "Cloud Accounts",           tactic: "Persistence" },
+  ],
+  "INC-8839": [
+    { id: "T1071.001", name: "Web Protocols",            tactic: "Command and Control" },
+  ],
+  "INC-8838": [
+    { id: "T1059.001", name: "PowerShell",               tactic: "Execution" },
+  ],
+};
+
+export interface AlertRow {
+  id: string;
+  ts: string;
+  incident_id: string;
+  title: string;
+  severity: Severity;
+  host: string;
+  status: "new" | "triaged" | "suppressed" | "closed";
+  mitre: { id: string; name: string }[];
+  assigned_to?: string;
+}
+
+export const alerts: AlertRow[] = [
+  { id: "A-10241", ts: "2026-07-10T09:38:11Z", incident_id: "INC-8842", title: "Impossible-travel login from RU then DE (14 min)", severity: "critical", host: "corp-dc-01",   status: "new",       mitre: [{ id: "T1078", name: "Valid Accounts" }], assigned_to: "a.morales" },
+  { id: "A-10240", ts: "2026-07-10T09:31:02Z", incident_id: "INC-8841", title: "Internal port sweep — 812 ports in 44s",            severity: "high",     host: "prod-web-02", status: "triaged",   mitre: [{ id: "T1046", name: "Network Service Scanning" }], assigned_to: "a.morales" },
+  { id: "A-10239", ts: "2026-07-10T09:22:47Z", incident_id: "INC-8840", title: "IAM role granted AdministratorAccess by non-admin", severity: "critical", host: "corp-dc-01",   status: "new",       mitre: [{ id: "T1078.004", name: "Cloud Accounts" }] },
+  { id: "A-10238", ts: "2026-07-10T09:05:18Z", incident_id: "INC-8839", title: "Beacon-like DNS to newly-registered domain",         severity: "medium",   host: "worker-eu-3", status: "triaged",   mitre: [{ id: "T1071.001", name: "Web Protocols" }] },
+  { id: "A-10237", ts: "2026-07-10T08:44:02Z", incident_id: "INC-8838", title: "Encoded PowerShell spawned by Office child process", severity: "high",     host: "laptop-jchen", status: "closed",   mitre: [{ id: "T1059.001", name: "PowerShell" }] },
+  { id: "A-10236", ts: "2026-07-10T08:12:55Z", incident_id: "INC-8837", title: "Legacy TLS 1.0 handshake — external endpoint",       severity: "low",      host: "prod-web-01", status: "suppressed", mitre: [] },
+];
+
+export interface StaticRule {
+  id: string;
+  name: string;
+  category: "auth" | "network" | "endpoint" | "cloud" | "data";
+  severity: Severity;
+  enabled: boolean;
+  hits_7d: number;
+  fp_rate: number; // 0-1
+  updated: string;
+}
+
+export const staticRules: StaticRule[] = [
+  { id: "R-001", name: "SSH brute force — >20 failed / 60s",              category: "auth",     severity: "high",     enabled: true,  hits_7d: 142, fp_rate: 0.04, updated: "2026-06-28" },
+  { id: "R-002", name: "IAM policy change outside change window",         category: "cloud",    severity: "critical", enabled: true,  hits_7d: 3,   fp_rate: 0.00, updated: "2026-07-02" },
+  { id: "R-003", name: "Egress to Tor exit node",                         category: "network",  severity: "high",     enabled: true,  hits_7d: 11,  fp_rate: 0.09, updated: "2026-05-14" },
+  { id: "R-004", name: "Endpoint EDR agent stopped",                      category: "endpoint", severity: "critical", enabled: true,  hits_7d: 0,   fp_rate: 0.01, updated: "2026-05-30" },
+  { id: "R-005", name: "S3 bucket policy set to public-read",             category: "data",     severity: "critical", enabled: true,  hits_7d: 1,   fp_rate: 0.00, updated: "2026-07-05" },
+  { id: "R-006", name: "Suspicious PowerShell — encoded command",         category: "endpoint", severity: "high",     enabled: true,  hits_7d: 27,  fp_rate: 0.12, updated: "2026-06-12" },
+  { id: "R-007", name: "Legacy TLS 1.0 handshake",                        category: "network",  severity: "low",      enabled: false, hits_7d: 88,  fp_rate: 0.71, updated: "2026-04-01" },
+  { id: "R-008", name: "MFA disabled on privileged account",              category: "auth",     severity: "critical", enabled: true,  hits_7d: 0,   fp_rate: 0.00, updated: "2026-07-08" },
+];
+
+export const aiConfig = {
+  model: "gpt-oss-120b",
+  fallback_model: "claude-haiku-3.5",
+  embedding_model: "text-embed-3-large",
+  vector_store: {
+    backend: "pgvector",
+    dimension: 3072,
+    incidents_indexed: 12_408,
+    playbooks_indexed: 214,
+  },
+  thresholds: {
+    auto_mitigate_confidence: 0.92,
+    escalate_below_confidence: 0.55,
+    critical_risk_score: 85,
+  },
+  guardrails: [
+    "Never revoke sessions for accounts in the executive-protection list",
+    "Require 2-agent consensus before any WAF block on prod-web-*",
+    "PII never leaves the tenant — retrieval scoped to tenant vector namespace",
+    "Every automated action must log its full reasoning chain to /audit",
+  ],
+};
+
+export const pipelineHealth = [
+  { component: "Ingest — CloudTrail",   status: "ok",       throughput: "1.4k evt/s", latency_ms: 82,  note: "healthy" },
+  { component: "Ingest — Okta",         status: "ok",       throughput: "42 evt/s",  latency_ms: 110, note: "healthy" },
+  { component: "Ingest — EDR",          status: "ok",       throughput: "620 evt/s", latency_ms: 91,  note: "healthy" },
+  { component: "Vector index",          status: "ok",       throughput: "—",         latency_ms: 44,  note: "12,408 incidents" },
+  { component: "Detector agent",        status: "ok",       throughput: "6.1/min",   latency_ms: 210, note: "on gpt-oss-120b" },
+  { component: "Investigator agent",    status: "ok",       throughput: "1.9/min",   latency_ms: 780, note: "on gpt-oss-120b" },
+  { component: "Responder agent",       status: "degraded", throughput: "0.4/min",   latency_ms: 1420, note: "elevated LLM latency — fallback armed" },
+  { component: "Notifier — PagerDuty",  status: "ok",       throughput: "—",         latency_ms: 320, note: "healthy" },
+] as const;
+
+export const adminAudit = [
+  { ts: "2026-07-10T09:40:11Z", actor: "system:responder", action: "blocked ip 45.9.148.22 on cloudflare-waf", target: "INC-8842" },
+  { ts: "2026-07-10T09:33:44Z", actor: "a.morales",        action: "acknowledged alert",                       target: "A-10241" },
+  { ts: "2026-07-10T09:20:02Z", actor: "j.chen",           action: "toggled rule R-007 off",                   target: "R-007" },
+  { ts: "2026-07-10T08:58:31Z", actor: "system:investigator", action: "attached MITRE T1078.004",              target: "INC-8840" },
+  { ts: "2026-07-10T08:12:04Z", actor: "j.chen",           action: "updated auto-mitigate confidence 0.90→0.92", target: "ai-config" },
+  { ts: "2026-07-10T07:44:20Z", actor: "system:detector",  action: "opened incident",                          target: "INC-8837" },
+];
