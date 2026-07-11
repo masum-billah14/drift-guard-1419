@@ -1,19 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import {
-  LayoutDashboard,
-  Bot,
-  Database,
-  Settings,
-  Lock,
-  FileCheck2,
-  Network,
-  LogOut,
-  ShieldCheck,
-  Presentation,
-  BookOpen,
-} from "lucide-react";
+import { LayoutDashboard, Bot, Settings, LogOut, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TopNav } from "@/components/top-nav";
 
 type Role = "admin" | "analyst";
 
@@ -35,20 +24,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => clearInterval(i);
   }, []);
 
-  const nav = [
-    { to: "/app", label: "Console", icon: LayoutDashboard },
-    { to: "/data", label: "Data sources", icon: Database },
-    { to: "/architecture", label: "Architecture", icon: Network },
-    { to: "/security", label: "Security", icon: Lock },
-    { to: "/audit", label: "Audit", icon: FileCheck2 },
-  ];
-
-  const storyNav = [
-    { to: "/presentation", label: "The story", icon: BookOpen },
-    { to: "/pitchdeck", label: "Pitch deck", icon: Presentation },
-  ];
-
-  const adminNav = [{ to: "/admin", label: "Admin panel", icon: Settings }];
+  const sidebarItems =
+    role === "admin"
+      ? [{ to: "/admin", label: "Admin panel", icon: Settings }]
+      : [{ to: "/app", label: "Console", icon: LayoutDashboard }];
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
@@ -65,9 +44,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <nav className="flex-1 space-y-0.5 p-2">
           <div className="mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Operations
+            {role === "admin" ? "Admin" : "Operations"}
           </div>
-          {nav.map((item) => {
+          {sidebarItems.map((item) => {
             const active = item.to === "/app" ? pathname === "/app" : pathname.startsWith(item.to);
             return (
               <Link
@@ -85,54 +64,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
-
-          <div className="mt-4 mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Judging
-          </div>
-          {storyNav.map((item) => {
-            const active = pathname.startsWith(item.to);
-            return (
-              <Link
-                key={item.label}
-                to={item.to}
-                className={cn(
-                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors",
-                  active
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
-                )}
-              >
-                <item.icon className="h-4 w-4 shrink-0" />
-                <span className="truncate">{item.label}</span>
-              </Link>
-            );
-          })}
-
-          {role === "admin" && (
-            <>
-              <div className="mt-4 mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Admin
-              </div>
-              {adminNav.map((item) => {
-                const active = pathname.startsWith(item.to);
-                return (
-                  <Link
-                    key={item.label}
-                    to={item.to}
-                    className={cn(
-                      "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors",
-                      active
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
-                    )}
-                  >
-                    <item.icon className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{item.label}</span>
-                  </Link>
-                );
-              })}
-            </>
-          )}
         </nav>
 
         <div className="border-t border-sidebar-border p-3">
@@ -157,30 +88,35 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
-            <Bot className="hidden h-4 w-4 shrink-0 text-primary md:block" />
-            <div className="min-w-0">
-              <div className="truncate text-sm font-semibold">Security Operations Console</div>
-              <div className="truncate text-[11px] font-mono-tech text-muted-foreground">
-                tenant: acme-prod · region: eu-central-1
+        <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur">
+          <div className="flex h-14 items-center gap-3 px-4">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <Bot className="hidden h-4 w-4 shrink-0 text-primary md:block" />
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold">Security Operations Console</div>
+                <div className="truncate text-[11px] font-mono-tech text-muted-foreground">
+                  tenant: acme-prod · region: eu-central-1
+                </div>
               </div>
             </div>
+            <div className="hidden items-center gap-3 text-[11px] font-mono-tech text-muted-foreground sm:flex">
+              <span>{now}</span>
+              <span className="h-4 w-px bg-border" />
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-ok" />
+                live
+              </span>
+            </div>
+            <div className="flex items-center gap-2 rounded-md border border-border bg-panel px-2 py-1 text-[11px]">
+              <span className="h-2 w-2 rounded-full bg-primary" />
+              <span className="font-medium">{role === "admin" ? "Admin" : "Analyst"}</span>
+              <span className="hidden font-mono-tech text-muted-foreground sm:inline">
+                {role === "admin" ? "j.chen" : "a.morales"}
+              </span>
+            </div>
           </div>
-          <div className="hidden items-center gap-3 text-[11px] font-mono-tech text-muted-foreground sm:flex">
-            <span>{now}</span>
-            <span className="h-4 w-px bg-border" />
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-ok" />
-              live
-            </span>
-          </div>
-          <div className="flex items-center gap-2 rounded-md border border-border bg-panel px-2 py-1 text-[11px]">
-            <span className="h-2 w-2 rounded-full bg-primary" />
-            <span className="font-medium">{role === "admin" ? "Admin" : "Analyst"}</span>
-            <span className="hidden font-mono-tech text-muted-foreground sm:inline">
-              {role === "admin" ? "j.chen" : "a.morales"}
-            </span>
+          <div className="border-t border-border/60 bg-background/60 px-4 py-1.5">
+            <TopNav />
           </div>
         </header>
 
