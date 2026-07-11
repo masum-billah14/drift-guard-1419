@@ -89,6 +89,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 border-b border-border bg-background/80 backdrop-blur">
+          <div className="border-b border-border/60 bg-background/70 px-4 py-1.5">
+            <TopNav />
+          </div>
           <div className="flex h-14 items-center gap-3 px-4">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <Bot className="hidden h-4 w-4 shrink-0 text-primary md:block" />
@@ -114,9 +117,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {role === "admin" ? "j.chen" : "a.morales"}
               </span>
             </div>
-          </div>
-          <div className="border-t border-border/60 bg-background/60 px-4 py-1.5">
-            <TopNav />
           </div>
         </header>
 

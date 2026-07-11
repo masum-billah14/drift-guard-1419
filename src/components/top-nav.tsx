@@ -1,14 +1,16 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Network, Database, Lock, FileCheck2, BookOpen, Presentation } from "lucide-react";
+import { Home, Network, Database, Lock, FileCheck2, BookOpen, Presentation, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
+  { to: "/", label: "Home", icon: Home, exact: true },
   { to: "/architecture", label: "Architecture", icon: Network },
   { to: "/data", label: "Data", icon: Database },
   { to: "/security", label: "Security", icon: Lock },
   { to: "/audit", label: "Audit", icon: FileCheck2 },
   { to: "/presentation", label: "Presentation", icon: BookOpen },
   { to: "/pitchdeck", label: "Pitch deck", icon: Presentation },
+  { to: "/admin", label: "Admin", icon: Settings },
 ];
 
 export function TopNav() {
@@ -16,7 +18,7 @@ export function TopNav() {
   return (
     <nav className="-mx-1 flex items-center gap-0.5 overflow-x-auto">
       {items.map((it) => {
-        const active = pathname.startsWith(it.to);
+        const active = it.exact ? pathname === it.to : pathname.startsWith(it.to);
         return (
           <Link
             key={it.to}
