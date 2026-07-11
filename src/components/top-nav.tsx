@@ -18,7 +18,7 @@ export function TopNav() {
   return (
     <nav className="-mx-1 flex items-center gap-0.5 overflow-x-auto">
       {items.map((it) => {
-        const active = pathname.startsWith(it.to);
+        const active = it.exact ? pathname === it.to : pathname.startsWith(it.to);
         return (
           <Link
             key={it.to}
