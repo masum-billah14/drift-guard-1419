@@ -30,7 +30,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       : [{ to: "/app", label: "Console", icon: LayoutDashboard }];
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <div className="sticky top-0 z-30 w-full border-b border-border bg-background/90 px-4 py-1.5 backdrop-blur">
+        <TopNav />
+      </div>
+      <div className="flex min-h-0 flex-1">
       <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
         <div className="flex h-14 items-center gap-2 border-b border-sidebar-border px-4">
           <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary/15 ring-1 ring-primary/40">
