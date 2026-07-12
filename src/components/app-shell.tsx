@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { LayoutDashboard, Bot, Settings, LogOut, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Bot, Settings, LogOut, ShieldCheck, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TopNav } from "@/components/top-nav";
 
@@ -27,7 +27,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const sidebarItems =
     role === "admin"
       ? [{ to: "/admin", label: "Admin panel", icon: Settings }]
-      : [{ to: "/app", label: "Console", icon: LayoutDashboard }];
+      : [
+          { to: "/app", label: "Console", icon: LayoutDashboard },
+          { to: "/app/chat", label: "Log Copilot", icon: Sparkles },
+        ];
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
