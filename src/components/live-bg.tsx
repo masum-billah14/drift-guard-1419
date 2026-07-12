@@ -134,7 +134,7 @@ export function LiveBg({ className = "" }: { className?: string }) {
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(1200px 600px at 20% 10%, color-mix(in oklab, hsl(var(--primary)) 18%, transparent), transparent 60%), radial-gradient(900px 500px at 85% 90%, color-mix(in oklab, hsl(var(--ok, 142 71% 45%)) 12%, transparent), transparent 55%)",
+            "radial-gradient(1200px 600px at 20% 10%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 60%), radial-gradient(900px 500px at 85% 90%, color-mix(in oklab, var(--ok) 14%, transparent), transparent 55%)",
         }}
       />
       {/* grid */}
