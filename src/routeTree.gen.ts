@@ -22,6 +22,8 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppChatRouteImport } from './routes/app.chat'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AppIncidentsIdRouteImport } from './routes/app.incidents.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -89,6 +91,16 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppChatRoute = AppChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AppRoute,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppIncidentsIdRoute = AppIncidentsIdRouteImport.update({
   id: '/incidents/$id',
   path: '/incidents/$id',
@@ -108,6 +120,8 @@ export interface FileRoutesByFullPath {
   '/presentation': typeof PresentationRoute
   '/security': typeof SecurityRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/chat': typeof ApiChatRoute
+  '/app/chat': typeof AppChatRoute
   '/app/': typeof AppIndexRoute
   '/app/incidents/$id': typeof AppIncidentsIdRoute
 }
@@ -123,6 +137,8 @@ export interface FileRoutesByTo {
   '/presentation': typeof PresentationRoute
   '/security': typeof SecurityRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/chat': typeof ApiChatRoute
+  '/app/chat': typeof AppChatRoute
   '/app': typeof AppIndexRoute
   '/app/incidents/$id': typeof AppIncidentsIdRoute
 }
@@ -140,6 +156,8 @@ export interface FileRoutesById {
   '/presentation': typeof PresentationRoute
   '/security': typeof SecurityRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/chat': typeof ApiChatRoute
+  '/app/chat': typeof AppChatRoute
   '/app/': typeof AppIndexRoute
   '/app/incidents/$id': typeof AppIncidentsIdRoute
 }
@@ -158,6 +176,8 @@ export interface FileRouteTypes {
     | '/presentation'
     | '/security'
     | '/sitemap.xml'
+    | '/api/chat'
+    | '/app/chat'
     | '/app/'
     | '/app/incidents/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -173,6 +193,8 @@ export interface FileRouteTypes {
     | '/presentation'
     | '/security'
     | '/sitemap.xml'
+    | '/api/chat'
+    | '/app/chat'
     | '/app'
     | '/app/incidents/$id'
   id:
@@ -189,6 +211,8 @@ export interface FileRouteTypes {
     | '/presentation'
     | '/security'
     | '/sitemap.xml'
+    | '/api/chat'
+    | '/app/chat'
     | '/app/'
     | '/app/incidents/$id'
   fileRoutesById: FileRoutesById
@@ -206,6 +230,7 @@ export interface RootRouteChildren {
   PresentationRoute: typeof PresentationRoute
   SecurityRoute: typeof SecurityRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -301,6 +326,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/chat': {
+      id: '/app/chat'
+      path: '/chat'
+      fullPath: '/app/chat'
+      preLoaderRoute: typeof AppChatRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/incidents/$id': {
       id: '/app/incidents/$id'
       path: '/incidents/$id'
@@ -312,11 +351,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppChatRoute: typeof AppChatRoute
   AppIndexRoute: typeof AppIndexRoute
   AppIncidentsIdRoute: typeof AppIncidentsIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppChatRoute: AppChatRoute,
   AppIndexRoute: AppIndexRoute,
   AppIncidentsIdRoute: AppIncidentsIdRoute,
 }
@@ -336,17 +377,8 @@ const rootRouteChildren: RootRouteChildren = {
   PresentationRoute: PresentationRoute,
   SecurityRoute: SecurityRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
