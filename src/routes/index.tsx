@@ -11,6 +11,7 @@ import {
   FileCheck2,
 } from "lucide-react";
 import { kpis } from "@/lib/mock-data";
+import { LiveBg } from "@/components/live-bg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -62,7 +63,7 @@ function Landing() {
       </header>
 
       <section className="relative overflow-hidden border-b border-border">
-        <div className="absolute inset-0 grid-bg opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" />
+        <LiveBg />
         <div className="relative mx-auto max-w-6xl px-6 py-20">
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-panel px-3 py-1 text-[11px] font-mono-tech text-muted-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-ok" />
