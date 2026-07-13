@@ -11,7 +11,7 @@ function getRole(): Role {
   return (window.localStorage.getItem("secureai:role") as Role) ?? "analyst";
 }
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, hideSidebar = false }: { children: ReactNode; hideSidebar?: boolean }) {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const [role, setRole] = useState<Role>("analyst");
   const [now, setNow] = useState<string>("");
