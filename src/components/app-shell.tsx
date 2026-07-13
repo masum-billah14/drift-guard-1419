@@ -95,6 +95,7 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
           </Link>
         </div>
       </aside>
+      )}
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-[41px] z-20 border-b border-border bg-background/80 backdrop-blur">
