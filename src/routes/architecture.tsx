@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DocShell } from "@/components/doc-shell";
-import { Activity, Bot, Database, Zap, Cpu, ShieldCheck } from "lucide-react";
+import { Activity, Bot, Database, Zap, Cpu, ShieldCheck, BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/architecture")({
   head: () => ({
@@ -30,11 +30,16 @@ export const Route = createFileRoute("/architecture")({
           The Investigator agent retrieves the top-k most similar past incidents and their
           human-labelled resolutions. This grounds the LLM's reasoning in your history.
         </Layer>
-        <Layer icon={Bot} title="4. LLM reasoning" tech="Gemini 2.5 · Claude Sonnet 4.5 (fallback)">
+        <Layer icon={BookOpen} title="4. RAG assembly" tech="context builder · MITRE ATT&CK · runbooks · threat intel">
+          Retrieved incidents are fused with authoritative context — MITRE ATT&CK techniques,
+          your internal runbooks, CVE feeds, and asset ownership — into a compact, cited prompt.
+          Every fact the LLM sees carries a source it can quote in its reasoning.
+        </Layer>
+        <Layer icon={Bot} title="5. LLM reasoning" tech="Gemini 2.5 · Claude Sonnet 4.5 (fallback)">
           A structured prompt asks: what happened, why it looks anomalous vs baseline, similar
           past cases, and a recommended action with confidence. Output is JSON-schema-validated.
         </Layer>
-        <Layer icon={Zap} title="5. Response" tech="Policy engine · webhooks · SOAR">
+        <Layer icon={Zap} title="6. Response" tech="Policy engine · webhooks · SOAR">
           The Responder agent executes contained actions (block IP, revoke session, isolate pod)
           based on per-org policy, or escalates to a human with the full reasoning trail.
         </Layer>
@@ -64,6 +69,7 @@ function PipelineDiagram() {
     { label: "Event source", sub: "logs · auth · net" },
     { label: "Embedding", sub: "vectorize context" },
     { label: "Vector DB", sub: "similar incidents" },
+    { label: "RAG assembly", sub: "MITRE · runbooks · CVE" },
     { label: "LLM reasoning", sub: "why · confidence" },
     { label: "Response", sub: "act or escalate" },
   ];
