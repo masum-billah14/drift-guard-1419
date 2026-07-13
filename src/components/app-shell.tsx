@@ -38,7 +38,9 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
         <TopNav />
       </div>
       <div className="flex min-h-0 flex-1">
+      {!hideSidebar && (
       <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+
         <div className="flex h-14 items-center gap-2 border-b border-sidebar-border px-4">
           <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary/15 ring-1 ring-primary/40">
             <ShieldCheck className="h-4 w-4 text-primary" />
