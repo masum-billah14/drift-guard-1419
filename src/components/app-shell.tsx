@@ -11,7 +11,7 @@ function getRole(): Role {
   return (window.localStorage.getItem("secureai:role") as Role) ?? "analyst";
 }
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, hideSidebar = false }: { children: ReactNode; hideSidebar?: boolean }) {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const [role, setRole] = useState<Role>("analyst");
   const [now, setNow] = useState<string>("");
@@ -38,7 +38,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <TopNav />
       </div>
       <div className="flex min-h-0 flex-1">
+      {!hideSidebar && (
       <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+
         <div className="flex h-14 items-center gap-2 border-b border-sidebar-border px-4">
           <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary/15 ring-1 ring-primary/40">
             <ShieldCheck className="h-4 w-4 text-primary" />
@@ -93,6 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
         </div>
       </aside>
+      )}
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-[41px] z-20 border-b border-border bg-background/80 backdrop-blur">
