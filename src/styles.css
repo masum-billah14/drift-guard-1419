@@ -183,6 +183,38 @@
   100% { transform: translateY(100vh);  opacity: 0; }
 }
 
+@utility aurora-a { animation: aurora-drift-a 22s ease-in-out infinite; }
+@utility aurora-b { animation: aurora-drift-b 28s ease-in-out infinite; }
+@utility aurora-c { animation: aurora-drift-c 32s ease-in-out infinite; }
+@keyframes aurora-drift-a {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(60px,40px) scale(1.15); }
+}
+@keyframes aurora-drift-b {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(-80px,-30px) scale(1.1); }
+}
+@keyframes aurora-drift-c {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(40px,-60px) scale(1.2); }
+}
+
+@utility orbit-slow { animation: spin-cw 60s linear infinite; }
+@utility orbit-mid  { animation: spin-ccw 40s linear infinite; }
+@utility orbit-fast { animation: spin-cw 24s linear infinite; }
+@keyframes spin-cw  { to { transform: rotate(360deg); } }
+@keyframes spin-ccw { to { transform: rotate(-360deg); } }
+
+@utility scan-beam { animation: beam-slide 18s linear infinite; }
+@keyframes beam-slide {
+  0%   { transform: translate(-10%, -10%); }
+  100% { transform: translate(10%, 10%); }
+}
+
+@utility glow-text {
+  text-shadow: 0 0 40px color-mix(in oklab, var(--primary) 40%, transparent);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);

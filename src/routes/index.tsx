@@ -64,15 +64,28 @@ function Landing() {
 
       <section className="relative overflow-hidden border-b border-border">
         <LiveBg />
-        <div className="relative mx-auto max-w-6xl px-6 py-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-panel px-3 py-1 text-[11px] font-mono-tech text-muted-foreground">
-            <span className="h-1.5 w-1.5 rounded-full bg-ok" />
-            v0.1 · Idea to Unicorn 2026
+        <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-28">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-mono-tech text-primary backdrop-blur">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ok opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-ok" />
+            </span>
+            LIVE · v0.1 · Idea to Unicorn 2026
           </div>
-          <h1 className="mt-6 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
-            SMEs get breached because they can't afford a 24/7 SOC.
+
+          <h1 className="mt-6 max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl">
+            SMEs get breached because they can't afford a{" "}
+            <span
+              className="glow-text bg-clip-text text-transparent"
+              style={{
+                backgroundImage:
+                  "linear-gradient(120deg, color-mix(in oklab, var(--primary) 90%, white), color-mix(in oklab, var(--ok) 85%, white))",
+              }}
+            >
+              24/7 SOC.
+            </span>
           </h1>
-          <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
             SecureAI is an AI security copilot: autonomous agents that detect anomalies,
             <span className="text-foreground"> explain their reasoning in plain language</span>,
             and take contained response actions — so a team of two can hold the line.
@@ -81,19 +94,20 @@ function Landing() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/demo-user"
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_0_40px_-8px_var(--primary)] transition-all hover:shadow-[0_0_60px_-4px_var(--primary)]"
             >
-              View live demo <ArrowRight className="h-4 w-4" />
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+              View live demo <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
               to="/demo-admin"
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-panel px-4 py-2.5 text-sm font-medium hover:bg-accent"
+              className="inline-flex items-center gap-2 rounded-md border border-border bg-panel/60 px-5 py-2.5 text-sm font-medium backdrop-blur hover:border-primary/50 hover:bg-accent"
             >
               Enter as admin
             </Link>
           </div>
 
-          <div className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-4">
+          <div className="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border/70 bg-border/70 backdrop-blur sm:grid-cols-4">
             <Stat label="Threats detected today" value="1,284" tone="critical" />
             <Stat label="Avg response time" value={`${kpis.mttr_seconds}s`} tone="primary" />
             <Stat label="Auto-resolved" value={`${Math.round(kpis.auto_resolved_pct * 100)}%`} tone="ok" />
@@ -164,7 +178,7 @@ function Stat({ label, value, tone }: { label: string; value: string; tone: "cri
     low: "text-low",
   } as const;
   return (
-    <div className="bg-panel p-5">
+    <div className="bg-panel/70 p-5 backdrop-blur transition-colors hover:bg-panel">
       <div className={`text-2xl font-semibold tracking-tight font-mono-tech ${toneMap[tone]}`}>{value}</div>
       <div className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
     </div>
