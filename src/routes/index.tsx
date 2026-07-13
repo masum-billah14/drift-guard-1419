@@ -159,13 +159,6 @@ function Landing() {
           </div>
         </div>
       </section>
-
-      <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-8 text-[12px] font-mono-tech text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 SecureAI — Idea to Unicorn team project</span>
-          <span>build.demo · region eu-central-1 · dark-first</span>
-        </div>
-      </footer>
     </div>
   );
 }
