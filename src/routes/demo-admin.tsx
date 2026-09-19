@@ -2,14 +2,14 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/demo-admin")({
-  head: () => ({ meta: [{ title: "Enter as Admin — SecureAI" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Enter as Admin — DriftGuard" }, { name: "robots", content: "noindex" }] }),
   component: DemoAdmin,
 });
 
 function DemoAdmin() {
   const navigate = useNavigate();
   useEffect(() => {
-    if (typeof window !== "undefined") window.localStorage.setItem("secureai:role", "admin");
+    if (typeof window !== "undefined") window.localStorage.setItem("driftguard:role", "admin");
     navigate({ to: "/admin", replace: true });
   }, [navigate]);
   return (

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/api/chat")({
         const system: Msg = {
           role: "system",
           content:
-            "You are SecureAI's log analysis copilot for a Security Operations Console. " +
+            "You are DriftGuard's log analysis copilot for a Security Operations Console. " +
             "You help SOC analysts triage, correlate and reason over system, network, auth and application logs. " +
             "Be concise, technical, and structured. When given logs, extract: (1) suspicious events, " +
             "(2) likely MITRE ATT&CK techniques with IDs, (3) affected assets/IPs/users, " +

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Pricing — SecureAI | Enterprise SOC power at 10% of the cost" },
+      { title: "Pricing — DriftGuard | Enterprise SOC power at 10% of the cost" },
       {
         name: "description",
         content:

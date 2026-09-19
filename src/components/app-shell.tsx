@@ -8,7 +8,7 @@ type Role = "admin" | "analyst";
 
 function getRole(): Role {
   if (typeof window === "undefined") return "analyst";
-  return (window.localStorage.getItem("secureai:role") as Role) ?? "analyst";
+  return (window.localStorage.getItem("driftguard:role") as Role) ?? "analyst";
 }
 
 export function AppShell({ children, hideSidebar = false }: { children: ReactNode; hideSidebar?: boolean }) {
@@ -46,7 +46,7 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
             <ShieldCheck className="h-4 w-4 text-primary" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold tracking-tight">SecureAI</div>
+            <div className="truncate text-sm font-semibold tracking-tight">DriftGuard</div>
             <div className="truncate text-[10px] font-mono-tech text-muted-foreground">SOC-Copilot v0.1</div>
           </div>
         </div>
@@ -101,10 +101,12 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
         <header className="sticky top-[41px] z-20 border-b border-border bg-background/80 backdrop-blur">
           <div className="flex h-14 items-center gap-3 px-4">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <Bot className="hidden h-4 w-4 shrink-0 text-primary md:block" />
+              <Bot className={cn("hidden h-4 w-4 shrink-0 text-primary md:block", hideSidebar && "opacity-0")} />
               <div className="min-w-0">
-                <div className="truncate text-sm font-semibold">Security Operations Console</div>
-                <div className="truncate text-[11px] font-mono-tech text-muted-foreground">
+                <div className="truncate text-sm font-semibold">
+                  {hideSidebar ? "DriftGuard" : "Security Operations Console"}
+                </div>
+                <div className={cn("truncate text-[11px] font-mono-tech text-muted-foreground", hideSidebar && "opacity-0")}>
                   tenant: acme-prod · region: eu-central-1
                 </div>
               </div>

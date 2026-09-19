@@ -32,7 +32,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin — SecureAI" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Admin — DriftGuard" }, { name: "robots", content: "noindex" }] }),
   component: AdminPage,
 });
 
@@ -71,7 +71,7 @@ function AdminPage() {
               <div className="font-mono-tech text-[10px] uppercase tracking-[0.2em] text-primary">
                 Administration console
               </div>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight">SecureAI · Admin</h1>
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight">DriftGuard · Admin</h1>
               <p className="mt-1 text-[13px] text-muted-foreground">
                 Manage fleet, alerts, detection rules, AI behavior, and platform health.
               </p>
