@@ -14,6 +14,7 @@ import {
 import { kpis } from "@/lib/mock-data";
 import { LiveBg } from "@/components/live-bg";
 import { AppShell } from "@/components/app-shell";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
