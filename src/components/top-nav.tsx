@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Network, Database, Lock, FileCheck2, BookOpen, Presentation } from "lucide-react";
+import { Home, Network, Database, Lock, FileCheck2, BookOpen, Presentation, Rocket } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -10,6 +10,7 @@ const items = [
   { to: "/audit", label: "Audit", icon: FileCheck2 },
   { to: "/presentation", label: "Presentation", icon: BookOpen },
   { to: "/pitchdeck", label: "Pitch deck", icon: Presentation },
+  { to: "/pricing", label: "Upgrade", icon: Rocket },
 ];
 
 export function TopNav() {
