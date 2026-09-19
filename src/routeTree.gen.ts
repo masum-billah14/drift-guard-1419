@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SecurityRouteImport } from './routes/security'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PresentationRouteImport } from './routes/presentation'
 import { Route as PitchdeckRouteImport } from './routes/pitchdeck'
 import { Route as DemoUserRouteImport } from './routes/demo-user'
@@ -34,6 +35,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SecurityRoute = SecurityRouteImport.update({
   id: '/security',
   path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PresentationRoute = PresentationRouteImport.update({
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/demo-user': typeof DemoUserRoute
   '/pitchdeck': typeof PitchdeckRoute
   '/presentation': typeof PresentationRoute
+  '/pricing': typeof PricingRoute
   '/security': typeof SecurityRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/chat': typeof ApiChatRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/demo-user': typeof DemoUserRoute
   '/pitchdeck': typeof PitchdeckRoute
   '/presentation': typeof PresentationRoute
+  '/pricing': typeof PricingRoute
   '/security': typeof SecurityRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/chat': typeof ApiChatRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/demo-user': typeof DemoUserRoute
   '/pitchdeck': typeof PitchdeckRoute
   '/presentation': typeof PresentationRoute
+  '/pricing': typeof PricingRoute
   '/security': typeof SecurityRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/chat': typeof ApiChatRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/demo-user'
     | '/pitchdeck'
     | '/presentation'
+    | '/pricing'
     | '/security'
     | '/sitemap.xml'
     | '/api/chat'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/demo-user'
     | '/pitchdeck'
     | '/presentation'
+    | '/pricing'
     | '/security'
     | '/sitemap.xml'
     | '/api/chat'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/demo-user'
     | '/pitchdeck'
     | '/presentation'
+    | '/pricing'
     | '/security'
     | '/sitemap.xml'
     | '/api/chat'
@@ -228,6 +240,7 @@ export interface RootRouteChildren {
   DemoUserRoute: typeof DemoUserRoute
   PitchdeckRoute: typeof PitchdeckRoute
   PresentationRoute: typeof PresentationRoute
+  PricingRoute: typeof PricingRoute
   SecurityRoute: typeof SecurityRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -247,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: '/security'
       fullPath: '/security'
       preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/presentation': {
@@ -375,6 +395,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoUserRoute: DemoUserRoute,
   PitchdeckRoute: PitchdeckRoute,
   PresentationRoute: PresentationRoute,
+  PricingRoute: PricingRoute,
   SecurityRoute: SecurityRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiChatRoute: ApiChatRoute,
