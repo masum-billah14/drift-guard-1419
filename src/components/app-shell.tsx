@@ -101,10 +101,12 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
         <header className="sticky top-[41px] z-20 border-b border-border bg-background/80 backdrop-blur">
           <div className="flex h-14 items-center gap-3 px-4">
             <div className="flex min-w-0 flex-1 items-center gap-3">
-              <Bot className="hidden h-4 w-4 shrink-0 text-primary md:block" />
+              <Bot className={cn("hidden h-4 w-4 shrink-0 text-primary md:block", hideSidebar && "opacity-0")} />
               <div className="min-w-0">
-                <div className="truncate text-sm font-semibold">Security Operations Console</div>
-                <div className="truncate text-[11px] font-mono-tech text-muted-foreground">
+                <div className="truncate text-sm font-semibold">
+                  {hideSidebar ? "DriftGuard" : "Security Operations Console"}
+                </div>
+                <div className={cn("truncate text-[11px] font-mono-tech text-muted-foreground", hideSidebar && "opacity-0")}>
                   tenant: acme-prod · region: eu-central-1
                 </div>
               </div>

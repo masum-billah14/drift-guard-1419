@@ -36,7 +36,7 @@ export function TopNav() {
             <it.icon className="h-3.5 w-3.5" />
             <span className="whitespace-nowrap">{it.label}</span>
             {it.badge && (
-              <span className="rounded-full bg-ok/20 px-1.5 py-0 text-[9px] font-bold uppercase tracking-wider text-ok">
+              <span className="ml-0.5 rounded-full bg-ok/20 px-1.5 py-0 text-[9px] font-bold uppercase tracking-wider text-ok">
                 {it.badge}
               </span>
             )}
