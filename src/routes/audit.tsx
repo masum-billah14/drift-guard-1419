@@ -6,7 +6,7 @@ import { useState } from "react";
 export const Route = createFileRoute("/audit")({
   head: () => ({
     meta: [
-      { title: "Audit report — SecureAI" },
+      { title: "Audit report — DriftGuard" },
       { name: "description", content: "One-click security, privacy, and governance audit." },
     ],
   }),
@@ -62,7 +62,7 @@ function AuditPage() {
       <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-panel p-5">
         <FileCheck2 className="h-5 w-5 text-primary" />
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-semibold">SecureAI compliance report</div>
+          <div className="text-sm font-semibold">DriftGuard compliance report</div>
           <div className="text-[11px] font-mono-tech text-muted-foreground">
             tenant: acme-prod · scope: last 90 days · format: PDF
           </div>

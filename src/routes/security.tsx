@@ -6,9 +6,9 @@ import type { ComponentType } from "react";
 export const Route = createFileRoute("/security")({
   head: () => ({
     meta: [
-      { title: "Security & Compliance — SecureAI" },
+      { title: "Security & Compliance — DriftGuard" },
       { name: "description", content: "Auth, encryption, sovereignty and compliance posture." },
-      { property: "og:title", content: "SecureAI Security posture" },
+      { property: "og:title", content: "DriftGuard Security posture" },
       { property: "og:description", content: "Auth, encryption at rest/in transit, GDPR-aligned data sovereignty." },
     ],
   }),
@@ -119,7 +119,7 @@ const controls = [
   { icon: GitBranch, name: "Supply-chain scanning",  detail: "Snyk + GitHub Advanced Security on every PR, weekly dep bumps" },
   { icon: Lock,      name: "Backup encryption",      detail: "Backups sealed with tenant DEK; restore rehearsed monthly" },
   { icon: Globe2,    name: "Egress allow-list",      detail: "Worker egress restricted to declared destinations only" },
-  { icon: Eye,       name: "Anomaly on ourselves",   detail: "SecureAI monitors its own control-plane with the same detector agents" },
+  { icon: Eye,       name: "Anomaly on ourselves",   detail: "DriftGuard monitors its own control-plane with the same detector agents" },
 ];
 
 function Pillar({

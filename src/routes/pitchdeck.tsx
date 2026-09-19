@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/pitchdeck")({
   head: () => ({
     meta: [
-      { title: "Pitch deck — SecureAI" },
-      { name: "description", content: "9-slide investor deck for SecureAI." },
+      { title: "Pitch deck — DriftGuard" },
+      { name: "description", content: "9-slide investor deck for DriftGuard." },
     ],
   }),
   component: Deck,
@@ -24,7 +24,7 @@ type Slide = {
 };
 
 const slides: Slide[] = [
-  { n: 1, kicker: "SecureAI · Seed 2026", title: "The security team for companies that don't have one.", body: "AI agents that detect, explain, and respond — designed for the 200,000 SMEs regulators just told to grow up.", kind: "cover" },
+  { n: 1, kicker: "DriftGuard · Seed 2026", title: "The security team for companies that don't have one.", body: "AI agents that detect, explain, and respond — designed for the 200,000 SMEs regulators just told to grow up.", kind: "cover" },
   { n: 2, kicker: "Problem", title: "204 days.", body: "That's how long the average breach goes undetected at an SME. A 24/7 SOC costs $1M+. Most SMEs run with zero coverage — and NIS2 & DORA just made that illegal.", metric: [{ v: "204", l: "days to detect" }, { v: "$4.4M", l: "avg breach cost" }, { v: "0", l: "SOC headcount" }] },
   { n: 3, kicker: "Solution", title: "Three agents, one paper trail.", body: "Detector spots anomalies against learned baselines. Investigator retrieves similar past incidents from vector memory. Responder acts on the safe stuff, escalates the rest — with full reasoning attached to every decision.", metric: [{ v: "seconds", l: "MTTD" }, { v: "82%", l: "auto-resolved" }, { v: "100%", l: "explainable" }] },
   { n: 4, kicker: "Market", title: "€400M and growing 22% YoY.", body: "200,000 EU SMEs above the NIS2 threshold with no dedicated SOC. Regulation created a mandatory line item where none existed. LLMs made supplying it economical.", metric: [{ v: "200k", l: "EU SMEs > 50 FTE" }, { v: "€400M", l: "EU TAM" }, { v: "22%", l: "CAGR" }] },

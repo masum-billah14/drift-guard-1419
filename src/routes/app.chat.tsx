@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/app/chat")({
   head: () => ({
     meta: [
-      { title: "Log Analysis Copilot — SecureAI" },
+      { title: "Log Analysis Copilot — DriftGuard" },
       { name: "robots", content: "noindex" },
     ],
   }),

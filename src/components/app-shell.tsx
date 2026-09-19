@@ -8,7 +8,7 @@ type Role = "admin" | "analyst";
 
 function getRole(): Role {
   if (typeof window === "undefined") return "analyst";
-  return (window.localStorage.getItem("secureai:role") as Role) ?? "analyst";
+  return (window.localStorage.getItem("driftguard:role") as Role) ?? "analyst";
 }
 
 export function AppShell({ children, hideSidebar = false }: { children: ReactNode; hideSidebar?: boolean }) {
@@ -46,7 +46,7 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
             <ShieldCheck className="h-4 w-4 text-primary" />
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold tracking-tight">SecureAI</div>
+            <div className="truncate text-sm font-semibold tracking-tight">DriftGuard</div>
             <div className="truncate text-[10px] font-mono-tech text-muted-foreground">SOC-Copilot v0.1</div>
           </div>
         </div>

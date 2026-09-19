@@ -19,7 +19,7 @@ function NotFoundComponent() {
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The route you're looking for isn't part of the SecureAI console.
+          The route you're looking for isn't part of the DriftGuard console.
         </p>
         <div className="mt-6">
           <Link
@@ -77,23 +77,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SecureAI — AI Security Operations Copilot for lean teams" },
+      { title: "DriftGuard — AI Security Operations Copilot for lean teams" },
       {
         name: "description",
         content:
-          "SMEs get breached because they can't afford 24/7 SOC. SecureAI's AI agents detect anomalies, explain why, and respond in seconds.",
+          "SMEs get breached because they can't afford 24/7 SOC. DriftGuard's AI agents detect anomalies, explain why, and respond in seconds.",
       },
-      { name: "author", content: "SecureAI" },
-      { property: "og:title", content: "SecureAI — AI Security Operations Copilot for lean teams" },
+      { name: "author", content: "DriftGuard" },
+      { property: "og:title", content: "DriftGuard — AI Security Operations Copilot for lean teams" },
       {
         property: "og:description",
         content:
-          "SMEs get breached because they can't afford 24/7 SOC. SecureAI's AI agents detect anomalies, explain why, and respond in seconds.",
+          "SMEs get breached because they can't afford 24/7 SOC. DriftGuard's AI agents detect anomalies, explain why, and respond in seconds.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "SecureAI — AI Security Operations Copilot for lean teams" },
-      { name: "twitter:description", content: "SMEs get breached because they can't afford 24/7 SOC. SecureAI's AI agents detect anomalies, explain why, and respond in seconds." },
+      { name: "twitter:title", content: "DriftGuard — AI Security Operations Copilot for lean teams" },
+      { name: "twitter:description", content: "SMEs get breached because they can't afford 24/7 SOC. DriftGuard's AI agents detect anomalies, explain why, and respond in seconds." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/418d5a68-0747-4c6a-ba45-af5776db88d4/id-preview-d782535b--aaad826e-baae-406b-8f7d-8d6dff424110.lovable.app-1783540683705.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/418d5a68-0747-4c6a-ba45-af5776db88d4/id-preview-d782535b--aaad826e-baae-406b-8f7d-8d6dff424110.lovable.app-1783540683705.png" },
     ],

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/app/incidents/$id")({
   },
   head: ({ loaderData }) => ({
     meta: [
-      { title: loaderData ? `${loaderData.inc.id} — ${loaderData.inc.title.slice(0, 60)}` : "Incident — SecureAI" },
+      { title: loaderData ? `${loaderData.inc.id} — ${loaderData.inc.title.slice(0, 60)}` : "Incident — DriftGuard" },
       { name: "robots", content: "noindex" },
     ],
   }),

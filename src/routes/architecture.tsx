@@ -5,9 +5,9 @@ import { Activity, Bot, Database, Zap, Cpu, ShieldCheck, BookOpen } from "lucide
 export const Route = createFileRoute("/architecture")({
   head: () => ({
     meta: [
-      { title: "Architecture — SecureAI" },
-      { name: "description", content: "How SecureAI turns raw events into explainable AI-driven response." },
-      { property: "og:title", content: "SecureAI Architecture" },
+      { title: "Architecture — DriftGuard" },
+      { name: "description", content: "How DriftGuard turns raw events into explainable AI-driven response." },
+      { property: "og:title", content: "DriftGuard Architecture" },
       { property: "og:description", content: "Event → embedding → vector lookup → LLM reasoning → response." },
     ],
   }),

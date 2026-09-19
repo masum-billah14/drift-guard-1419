@@ -5,9 +5,9 @@ import { Database, Cpu, Archive, Shield } from "lucide-react";
 export const Route = createFileRoute("/data")({
   head: () => ({
     meta: [
-      { title: "Data — SecureAI" },
+      { title: "Data — DriftGuard" },
       { name: "description", content: "Data sources, ingestion, embedding, and retention." },
-      { property: "og:title", content: "SecureAI Data Pipeline" },
+      { property: "og:title", content: "DriftGuard Data Pipeline" },
       { property: "og:description", content: "How events become vectors, and what is stored." },
     ],
   }),

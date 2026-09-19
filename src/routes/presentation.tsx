@@ -6,9 +6,9 @@ import type { ComponentType } from "react";
 export const Route = createFileRoute("/presentation")({
   head: () => ({
     meta: [
-      { title: "The story — SecureAI" },
+      { title: "The story — DriftGuard" },
       { name: "description", content: "Problem, solution, users, market, and impact." },
-      { property: "og:title", content: "SecureAI — the story" },
+      { property: "og:title", content: "DriftGuard — the story" },
       { property: "og:description", content: "Why lean IT teams need an AI security copilot, and what happens when they have one." },
     ],
   }),
@@ -33,7 +33,7 @@ const chapters = [
     accent: "primary" as const,
     title: "Three agents that see, think, and act — with a paper trail",
     lede: "Detector spots. Investigator explains. Responder acts. All auditable.",
-    body: "SecureAI is an AI security copilot. Three specialised agents work continuously: a Detector spots anomalies against learned baselines; an Investigator retrieves similar past incidents from a vector DB and explains its reasoning; a Responder takes contained actions — block an IP, revoke a session — or escalates to a human with the full chain of thought.",
+    body: "DriftGuard is an AI security copilot. Three specialised agents work continuously: a Detector spots anomalies against learned baselines; an Investigator retrieves similar past incidents from a vector DB and explains its reasoning; a Responder takes contained actions — block an IP, revoke a session — or escalates to a human with the full chain of thought.",
     stat: { v: "10×", u: "faster", l: "team-of-two holds the line team-of-ten used to" },
   },
   {
@@ -43,7 +43,7 @@ const chapters = [
     accent: "high" as const,
     title: "Head of IT at a 50–500 person company",
     lede: "The security team of one. They approve or override in seconds, not investigate for an hour.",
-    body: "They pick SecureAI because it explains itself — every alert comes with plain-language reasoning, MITRE ATT&CK tags, and a recommended action. No dashboard-diving. No SIEM query language. No 30-tab investigation.",
+    body: "They pick DriftGuard because it explains itself — every alert comes with plain-language reasoning, MITRE ATT&CK tags, and a recommended action. No dashboard-diving. No SIEM query language. No 30-tab investigation.",
     stat: { v: "1", u: "person", l: "typical security headcount at target customers" },
   },
   {

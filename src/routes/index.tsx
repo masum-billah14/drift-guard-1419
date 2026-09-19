@@ -16,11 +16,11 @@ import { LiveBg } from "@/components/live-bg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SecureAI — AI Security Operations Copilot for lean teams" },
+      { title: "DriftGuard — AI Security Operations Copilot for lean teams" },
       {
         name: "description",
         content:
-          "SMEs get breached because they can't afford 24/7 SOC. SecureAI's AI agents detect anomalies, explain why, and respond in seconds.",
+          "SMEs get breached because they can't afford 24/7 SOC. DriftGuard's AI agents detect anomalies, explain why, and respond in seconds.",
       },
     ],
   }),
@@ -36,7 +36,7 @@ function Landing() {
             <div className="grid h-7 w-7 place-items-center rounded-md bg-primary/15 ring-1 ring-primary/40">
               <ShieldCheck className="h-4 w-4 text-primary" />
             </div>
-            <span className="text-sm font-semibold tracking-tight">SecureAI</span>
+            <span className="text-sm font-semibold tracking-tight">DriftGuard</span>
           </Link>
           <nav className="hidden gap-5 text-[13px] text-muted-foreground md:flex">
             <Link to="/architecture" className="hover:text-foreground">Architecture</Link>
@@ -86,7 +86,7 @@ function Landing() {
             </span>
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            SecureAI is an AI security copilot: autonomous agents that detect anomalies,
+            DriftGuard is an AI security copilot: autonomous agents that detect anomalies,
             <span className="text-foreground"> explain their reasoning in plain language</span>,
             and take contained response actions — so a team of two can hold the line.
           </p>

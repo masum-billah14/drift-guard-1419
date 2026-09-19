@@ -4,7 +4,7 @@ import { AppShell } from "@/components/app-shell";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "Console — SecureAI" },
+      { title: "Console — DriftGuard" },
       { name: "robots", content: "noindex" },
     ],
   }),
