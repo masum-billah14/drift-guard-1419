@@ -11,6 +11,7 @@ const items = [
   { to: "/presentation", label: "Presentation", icon: BookOpen },
   { to: "/pitchdeck", label: "Pitch deck", icon: Presentation },
   { to: "/pricing", label: "Upgrade", icon: Rocket, badge: "from $1" },
+  { to: "/login", label: "Login", icon: LogIn },
 ];
 
 export function TopNav() {
