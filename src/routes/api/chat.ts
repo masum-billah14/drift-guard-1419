@@ -24,11 +24,15 @@ export const Route = createFileRoute("/api/chat")({
             "Use short markdown headings and bullet lists. If no logs are provided, answer the analyst's question directly.",
         };
 
+        const extra: Msg[] = [];
         if (body.logs && body.logs.trim().length > 0) {
-          const last = messages[messages.length - 1];
-          if (last?.role === "user") {
-            last.content = `${last.content}\n\n---\nLOG SAMPLE:\n\`\`\`\n${body.logs.slice(0, 20000)}\n\`\`\``;
-          }
+          extra.push({
+            role: "system",
+            content:
+              "The analyst has attached the following log sample. Treat it as the primary context for every question in this conversation; quote specific lines, timestamps, IPs and users from it.\n\nLOG SAMPLE:\n```\n" +
+              body.logs.slice(0, 20000) +
+              "\n```",
+          });
         }
 
         const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
