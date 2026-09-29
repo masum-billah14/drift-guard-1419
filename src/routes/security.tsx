@@ -90,23 +90,6 @@ function SecurityPage() {
           ))}
         </div>
       </section>
-
-      {/* Honest disclosure */}
-      <section className="mt-8 rounded-lg border border-medium/40 bg-gradient-to-r from-medium/15 to-transparent p-5">
-        <div className="flex items-start gap-3">
-          <div className="grid h-8 w-8 place-items-center rounded-md bg-medium/20 text-medium">
-            <Eye className="h-4 w-4" />
-          </div>
-          <div>
-            <div className="text-[13px] font-semibold text-medium">Honest disclosure</div>
-            <p className="mt-1 text-[13px] leading-relaxed text-foreground/85">
-              This is the v1 demo build. Live LLM calls, real vector DB, real auth and encryption
-              land in Phase 2. This page documents the target posture we are building toward and
-              measures against on every release.
-            </p>
-          </div>
-        </div>
-      </section>
     </DocShell>
   );
 }
