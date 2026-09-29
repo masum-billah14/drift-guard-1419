@@ -14,10 +14,12 @@ function getRole(): Role {
 export function AppShell({ children, hideSidebar = false }: { children: ReactNode; hideSidebar?: boolean }) {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const [role, setRole] = useState<Role>("analyst");
+  const [signedIn, setSignedIn] = useState(false);
   const [now, setNow] = useState<string>("");
 
   useEffect(() => {
     setRole(getRole());
+    setSignedIn(!!window.localStorage.getItem("driftguard:role"));
     const tick = () => setNow(new Date().toUTCString().slice(17, 25) + " UTC");
     tick();
     const i = setInterval(tick, 1000);
@@ -88,6 +90,7 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
           </div>
           <Link
             to="/"
+            onClick={() => window.localStorage.removeItem("driftguard:role")}
             className="mt-2 flex items-center gap-2 px-2 py-1 text-[11px] text-muted-foreground hover:text-foreground"
           >
             <LogOut className="h-3.5 w-3.5" />
@@ -119,6 +122,7 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
                 live
               </span>
             </div>
+            {signedIn && (
             <div className="flex items-center gap-2 rounded-md border border-border bg-panel px-2 py-1 text-[11px]">
               <span className="h-2 w-2 rounded-full bg-primary" />
               <span className="font-medium">{role === "admin" ? "Admin" : "Analyst"}</span>
@@ -126,6 +130,7 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
                 {role === "admin" ? "j.chen" : "a.morales"}
               </span>
             </div>
+            )}
           </div>
         </header>
 
