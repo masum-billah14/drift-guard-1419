@@ -10,8 +10,8 @@ const items = [
   { to: "/audit", label: "Audit", icon: FileCheck2 },
   { to: "/presentation", label: "Presentation", icon: BookOpen },
   { to: "/pitchdeck", label: "Pitch deck", icon: Presentation },
-  { to: "/pricing", label: "Upgrade", icon: Rocket, badge: "from $1" },
   { to: "/login", label: "Login", icon: LogIn },
+  { to: "/pricing", label: "Upgrade", icon: Rocket, badge: "from $1", highlight: true },
 ];
 
 export function TopNav() {
@@ -20,7 +20,7 @@ export function TopNav() {
     <nav className="-mx-1 flex items-center gap-0.5 overflow-x-auto">
       {items.map((it) => {
         const active = it.exact ? pathname === it.to : pathname.startsWith(it.to);
-        const isUpgrade = it.to === "/pricing";
+        const isUpgrade = Boolean(it.highlight);
         return (
           <Link
             key={it.to}
