@@ -10,8 +10,8 @@ const items = [
   { to: "/audit", label: "Audit", icon: FileCheck2 },
   { to: "/presentation", label: "Presentation", icon: BookOpen },
   { to: "/pitchdeck", label: "Pitch deck", icon: Presentation },
-  { to: "/pricing", label: "Upgrade", icon: Rocket, badge: "from $1" },
   { to: "/login", label: "Login", icon: LogIn },
+  { to: "/pricing", label: "Upgrade", icon: Rocket, badge: "from $1", highlight: true },
 ];
 
 export function TopNav() {
