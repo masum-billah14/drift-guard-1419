@@ -14,6 +14,7 @@ import { Route as SecurityRouteImport } from './routes/security'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PresentationRouteImport } from './routes/presentation'
 import { Route as PitchdeckRouteImport } from './routes/pitchdeck'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as DemoUserRouteImport } from './routes/demo-user'
 import { Route as DemoAdminRouteImport } from './routes/demo-admin'
 import { Route as DataRouteImport } from './routes/data'
@@ -50,6 +51,11 @@ const PresentationRoute = PresentationRouteImport.update({
 const PitchdeckRoute = PitchdeckRouteImport.update({
   id: '/pitchdeck',
   path: '/pitchdeck',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoUserRoute = DemoUserRouteImport.update({
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/data': typeof DataRoute
   '/demo-admin': typeof DemoAdminRoute
   '/demo-user': typeof DemoUserRoute
+  '/login': typeof LoginRoute
   '/pitchdeck': typeof PitchdeckRoute
   '/presentation': typeof PresentationRoute
   '/pricing': typeof PricingRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/data': typeof DataRoute
   '/demo-admin': typeof DemoAdminRoute
   '/demo-user': typeof DemoUserRoute
+  '/login': typeof LoginRoute
   '/pitchdeck': typeof PitchdeckRoute
   '/presentation': typeof PresentationRoute
   '/pricing': typeof PricingRoute
@@ -160,6 +168,7 @@ export interface FileRoutesById {
   '/data': typeof DataRoute
   '/demo-admin': typeof DemoAdminRoute
   '/demo-user': typeof DemoUserRoute
+  '/login': typeof LoginRoute
   '/pitchdeck': typeof PitchdeckRoute
   '/presentation': typeof PresentationRoute
   '/pricing': typeof PricingRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/data'
     | '/demo-admin'
     | '/demo-user'
+    | '/login'
     | '/pitchdeck'
     | '/presentation'
     | '/pricing'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/data'
     | '/demo-admin'
     | '/demo-user'
+    | '/login'
     | '/pitchdeck'
     | '/presentation'
     | '/pricing'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/data'
     | '/demo-admin'
     | '/demo-user'
+    | '/login'
     | '/pitchdeck'
     | '/presentation'
     | '/pricing'
@@ -238,6 +250,7 @@ export interface RootRouteChildren {
   DataRoute: typeof DataRoute
   DemoAdminRoute: typeof DemoAdminRoute
   DemoUserRoute: typeof DemoUserRoute
+  LoginRoute: typeof LoginRoute
   PitchdeckRoute: typeof PitchdeckRoute
   PresentationRoute: typeof PresentationRoute
   PricingRoute: typeof PricingRoute
@@ -281,6 +294,13 @@ declare module '@tanstack/react-router' {
       path: '/pitchdeck'
       fullPath: '/pitchdeck'
       preLoaderRoute: typeof PitchdeckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo-user': {
@@ -393,6 +413,7 @@ const rootRouteChildren: RootRouteChildren = {
   DataRoute: DataRoute,
   DemoAdminRoute: DemoAdminRoute,
   DemoUserRoute: DemoUserRoute,
+  LoginRoute: LoginRoute,
   PitchdeckRoute: PitchdeckRoute,
   PresentationRoute: PresentationRoute,
   PricingRoute: PricingRoute,
