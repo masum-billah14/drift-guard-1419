@@ -41,7 +41,7 @@ function ChatPage() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, busy]);
 
-  async function send(text: string) {
+  async function send(text: string, logOverride?: string) {
     const q = text.trim();
     if (!q || busy) return;
     setError(null);
@@ -55,7 +55,7 @@ function ChatPage() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next, logs }),
+        body: JSON.stringify({ messages: next, logs: logOverride ?? logs }),
       });
       if (!res.ok || !res.body) {
         const t = await res.text().catch(() => "");
@@ -159,8 +159,9 @@ function ChatPage() {
                   <button
                     key={s}
                     onClick={() => {
-                      if (!logs) setLogs(SAMPLE_LOG);
-                      send(s);
+                      const l = logs || SAMPLE_LOG;
+                      if (!logs) setLogs(l);
+                      send(s, l);
                     }}
                     className="rounded-md border border-border bg-panel px-3 py-2 text-left text-[12px] hover:border-primary/50 hover:bg-accent"
                   >
