@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Network, Database, Lock, FileCheck2, BookOpen, Presentation, Rocket } from "lucide-react";
+import { Home, Network, Database, Lock, FileCheck2, BookOpen, Presentation, Rocket, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
