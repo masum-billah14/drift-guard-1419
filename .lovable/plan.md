@@ -1,28 +1,34 @@
-## Goal
-Make the doc/judging links a persistent top bar accessible from every route, and slim the left sidebar down per role.
+# Connect DriftGuard to real workspace data
 
-## Changes
+## Scope
+Preserve the current theme and marketing pages. Use your supplied existing Supabase project directly, without Lovable Cloud, new infrastructure, service-role keys or database writes.
 
-### 1. New global top bar — `src/components/top-nav.tsx`
-- Horizontal bar rendered inside `AppShell`'s header (above/next to the tenant title), visible on every route including landing, `/app`, `/admin`, and all doc pages.
-- Links: Architecture, Data, Security, Audit, Presentation, Pitch deck.
-- Active state highlighted via `pathname.startsWith`.
-- Responsive: scrolls horizontally on narrow screens.
+## Authentication
+- Replace demo login with email/password sign-in and Create account; demo shortcuts redirect to `/login`.
+- Protect `/app`, incident detail, chat, Admin, Audit and Data; display email and Sign out.
+- Use existing Auth accounts only, assuming no extra profile information is needed.
+- Clearly handle email confirmation and signup-without-session.
+- Show your approval notice when all views are empty, alongside collector guidance. RLS-filtered empty views cannot distinguish an unapproved account from an approved empty workspace.
 
-### 2. `src/components/app-shell.tsx`
-- Add `<TopNav />` into the sticky header so it appears on every screen wrapped by AppShell.
-- Rework left sidebar by role:
-  - **Analyst**: only `Console` (and `Exit demo` footer). Remove Data/Architecture/Security/Audit and the entire Judging section — they now live in the top bar.
-  - **Admin**: only `Admin panel` (and `Exit demo`). No Console, no Operations, no Judging.
-- Keep the "All systems operational" status block and role badge.
+## Console data
+- Query only `dg_incidents`, `dg_events`, `dg_verdicts`, with pagination and exact 24-hour counts.
+- Real dashboard KPIs, hourly severity, recent events, incidents, RAG matches/deviations, evidence rows and actual pipeline stage results.
+- Label actions "Recommended action" only; remove action-execution controls.
+- Admin and Data become host/collector-status views derived from events.
+- Audit merges incidents and cleared event-group verdicts chronologically.
+- Remove fake agents/activity, users, rules, integrations, AI/vector configuration, pipeline health, compliance reports and unsupported performance metrics.
+- Refresh every ten seconds, show last updated and local times, and provide loading/error/empty states.
 
-### 3. Landing page `src/routes/index.tsx`
-- Currently not wrapped in AppShell. Wrap its header area with the same `<TopNav />` (or render AppShell) so the bar is reachable from `/` too, matching the "accessed from any tab" requirement.
+## Chat
+Remove sample logs. Use real incidents and verdicts for every question and follow-up. Validate the signed-in bearer token server-side and query the same protected views; never trust client-provided workspace context.
 
-### 4. Doc pages
-- No changes needed — `DocShell` already uses `AppShell`, so they inherit the new top bar and the trimmed sidebar automatically.
+## Marketing preservation
+Home imports promotional numbers from the console mock module. Move just those unchanged numbers into a marketing-only module and update the import, preserving its content and appearance. Keep all other marketing page files and sitemap unchanged.
 
-## Result
-- Top bar is the single entry point for Architecture / Data / Security / Audit / Presentation / Pitch deck, available on every page.
-- Analyst sidebar shows only Console.
-- Admin sidebar shows only Admin panel.
+## Technical details
+- One `src/lib/supabase.ts` owns supplied public config, a persisted browser client and request-scoped server client factory.
+- Client-only protected routes share a route guard and a single auth-state subscription; sign-out cancels and clears queries.
+- Focused tests cover KPI formulas, ten-minute collector threshold, decision merging, action recommendations and read-only access.
+
+## Verification
+Run focused tests, inspect automatic build results and check public/auth redirects and desktop/mobile states. This externally managed project has no injectable authenticated test session; report authenticated data flows and hosted Auth settings as unverified if no session is available, without requesting passwords.
