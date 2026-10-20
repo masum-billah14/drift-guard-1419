@@ -27,7 +27,7 @@ function LoginPage() {
           Sign in to <span className="text-primary">DriftGuard</span>
         </h1>
         <p className="mt-3 max-w-md text-center text-sm text-muted-foreground">
-          Pick a demo role to explore the console. No password needed — each role opens a pre-seeded tenant.
+          Pick a role to open the console. No password needed.
         </p>
 
         <div className="mt-10 grid w-full gap-4 sm:grid-cols-2">
@@ -43,7 +43,7 @@ function LoginPage() {
               Security operations console: live incidents, AI triage, log copilot.
             </div>
             <div className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-primary">
-              Enter as a.morales <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              Enter as Analyst <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </div>
           </Link>
 
@@ -56,16 +56,16 @@ function LoginPage() {
             </div>
             <div className="text-lg font-semibold">Admin demo</div>
             <div className="mt-1 text-[13px] text-muted-foreground">
-              Admin panel: hosts, users, alert rules, AI config, system health.
+              Admin panel: reporting hosts and collector status.
             </div>
             <div className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-ok">
-              Enter as j.chen <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              Enter as Admin <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </div>
           </Link>
         </div>
 
         <p className="mt-8 text-[11px] font-mono-tech text-muted-foreground">
-          tenant: acme-prod · region: eu-central-1 · demo data only
+          Live data from your connected collectors
         </p>
       </div>
     </AppShell>
