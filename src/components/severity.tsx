@@ -1,4 +1,4 @@
-import type { Severity } from "@/lib/mock-data";
+import type { Severity } from "@/lib/workspace-model";
 import { cn } from "@/lib/utils";
 
 const sevMap: Record<Severity | "info", { label: string; bg: string; text: string; ring: string; dot: string }> = {
@@ -43,6 +43,9 @@ export function StatusPill({ status }: { status: string }) {
   const map: Record<string, string> = {
     open: "bg-critical/10 text-critical ring-critical/30",
     investigating: "bg-high/10 text-high ring-high/30",
+    review_required: "bg-medium/10 text-medium ring-medium/30",
+    reporting: "bg-ok/10 text-ok ring-ok/30",
+    silent: "bg-muted text-muted-foreground ring-border",
     resolved: "bg-ok/10 text-ok ring-ok/30",
     contained: "bg-ok/10 text-ok ring-ok/30",
     "auto-mitigated": "bg-low/10 text-low ring-low/30",

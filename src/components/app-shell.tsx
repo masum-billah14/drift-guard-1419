@@ -20,7 +20,7 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
   useEffect(() => {
     setRole(getRole());
     setSignedIn(!!window.localStorage.getItem("driftguard:role"));
-    const tick = () => setNow(new Date().toUTCString().slice(17, 25) + " UTC");
+    const tick = () => setNow(new Date().toLocaleTimeString());
     tick();
     const i = setInterval(tick, 1000);
     return () => clearInterval(i);
@@ -84,13 +84,13 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
               <span className="relative h-2 w-2 rounded-full bg-ok" />
             </span>
             <div className="min-w-0 text-[11px]">
-              <div className="font-medium">All systems operational</div>
-              <div className="font-mono-tech text-muted-foreground">6 agents online</div>
+              <div className="font-medium">Connected collector data</div>
+              <div className="font-mono-tech text-muted-foreground">Read-only workspace</div>
             </div>
           </div>
           <Link
             to="/"
-            onClick={() => window.localStorage.removeItem("driftguard:role")}
+            onClick={() => { window.localStorage.removeItem("driftguard:role"); setSignedIn(false); setRole("analyst"); }}
             className="mt-2 flex items-center gap-2 px-2 py-1 text-[11px] text-muted-foreground hover:text-foreground"
           >
             <LogOut className="h-3.5 w-3.5" />
@@ -110,7 +110,7 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
                   {hideSidebar ? "DriftGuard" : "Security Operations Console"}
                 </div>
                 <div className={cn("truncate text-[11px] font-mono-tech text-muted-foreground", hideSidebar && "opacity-0")}>
-                  tenant: acme-prod · region: eu-central-1
+                  Live data from your connected collectors
                 </div>
               </div>
             </div>
@@ -118,8 +118,7 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
               <span>{now}</span>
               <span className="h-4 w-px bg-border" />
               <span className="inline-flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-ok" />
-                live
+                read-only
               </span>
             </div>
             {signedIn && (
@@ -127,7 +126,7 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
               <span className="h-2 w-2 rounded-full bg-primary" />
               <span className="font-medium">{role === "admin" ? "Admin" : "Analyst"}</span>
               <span className="hidden font-mono-tech text-muted-foreground sm:inline">
-                {role === "admin" ? "j.chen" : "a.morales"}
+                {role === "admin" ? "Admin" : "Analyst"}
               </span>
             </div>
             )}

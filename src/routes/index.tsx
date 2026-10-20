@@ -11,7 +11,7 @@ import {
   FileCheck2,
   Crown,
 } from "lucide-react";
-import { kpis } from "@/lib/mock-data";
+import { kpis } from "@/lib/marketing-data";
 import { LiveBg } from "@/components/live-bg";
 import { AppShell } from "@/components/app-shell";
 import { cn } from "@/lib/utils";
