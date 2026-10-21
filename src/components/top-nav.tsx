@@ -1,21 +1,22 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, Network, Database, Lock, FileCheck2, BookOpen, Presentation, Rocket, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const items = [
-  { to: "/", label: "Home", icon: Home, exact: true },
-  { to: "/architecture", label: "Architecture", icon: Network },
-  { to: "/data", label: "Data", icon: Database },
-  { to: "/security", label: "Security", icon: Lock },
-  { to: "/audit", label: "Audit", icon: FileCheck2 },
-  { to: "/presentation", label: "Presentation", icon: BookOpen },
-  { to: "/pitchdeck", label: "Pitch deck", icon: Presentation },
-  { to: "/login", label: "Login", icon: LogIn },
-  { to: "/pricing", label: "Upgrade", icon: Rocket, badge: "from $1", highlight: true },
-];
+import { useLang, LanguageToggle } from "@/lib/i18n";
 
 export function TopNav() {
+  const { bi } = useLang();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
+  const items = [
+    { to: "/", label: bi("Home", "হোম"), icon: Home, exact: true },
+    { to: "/architecture", label: bi("Architecture", "আর্কিটেকচার"), icon: Network },
+    { to: "/data", label: bi("Data", "ডেটা"), icon: Database },
+    { to: "/security", label: bi("Security", "নিরাপত্তা"), icon: Lock },
+    { to: "/audit", label: bi("Audit", "অডিট"), icon: FileCheck2 },
+    { to: "/presentation", label: bi("Presentation", "উপস্থাপনা"), icon: BookOpen },
+    { to: "/pitchdeck", label: bi("Pitch deck", "পিচ ডেক"), icon: Presentation },
+    { to: "/login", label: bi("Login", "লগইন"), icon: LogIn },
+    { to: "/pricing", label: bi("Upgrade", "আপগ্রেড"), icon: Rocket, badge: bi("from $1", "$1 থেকে শুরু"), highlight: true },
+  ];
   return (
     <nav className="-mx-1 flex items-center gap-0.5 overflow-x-auto">
       {items.map((it) => {
@@ -44,6 +45,9 @@ export function TopNav() {
           </Link>
         );
       })}
+      <div className="ml-1 shrink-0 pl-0.5">
+        <LanguageToggle />
+      </div>
     </nav>
   );
 }
