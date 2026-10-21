@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { LayoutDashboard, Bot, Settings, LogOut, ShieldCheck, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TopNav } from "@/components/top-nav";
+import { useLang } from "@/lib/i18n";
 
 type Role = "admin" | "analyst";
 
@@ -12,6 +13,7 @@ function getRole(): Role {
 }
 
 export function AppShell({ children, hideSidebar = false }: { children: ReactNode; hideSidebar?: boolean }) {
+  const { bi, lang } = useLang();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const [role, setRole] = useState<Role>("analyst");
   const [signedIn, setSignedIn] = useState(false);
@@ -20,18 +22,18 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
   useEffect(() => {
     setRole(getRole());
     setSignedIn(!!window.localStorage.getItem("driftguard:role"));
-    const tick = () => setNow(new Date().toLocaleTimeString());
+    const tick = () => setNow(new Date().toLocaleTimeString(lang === "bn" ? "bn-BD" : undefined));
     tick();
     const i = setInterval(tick, 1000);
     return () => clearInterval(i);
-  }, []);
+  }, [lang]);
 
   const sidebarItems =
     role === "admin"
-      ? [{ to: "/admin", label: "Admin panel", icon: Settings }]
+      ? [{ to: "/admin", label: bi("Admin panel", "অ্যাডমিন প্যানেল"), icon: Settings }]
       : [
-          { to: "/app", label: "Console", icon: LayoutDashboard },
-          { to: "/app/chat", label: "Log Copilot", icon: Sparkles },
+          { to: "/app", label: bi("Console", "কনসোল"), icon: LayoutDashboard },
+          { to: "/app/chat", label: bi("Log Copilot", "লগ কপাইলট"), icon: Sparkles },
         ];
 
   return (
@@ -55,13 +57,13 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
 
         <nav className="flex-1 space-y-0.5 p-2">
           <div className="mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {role === "admin" ? "Admin" : "Operations"}
+            {role === "admin" ? bi("Admin", "অ্যাডমিন") : bi("Operations", "অপারেশন")}
           </div>
           {sidebarItems.map((item) => {
             const active = item.to === "/app" ? pathname === "/app" : pathname.startsWith(item.to);
             return (
               <Link
-                key={item.label}
+                key={item.to}
                 to={item.to}
                 className={cn(
                   "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] transition-colors",
@@ -84,8 +86,8 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
               <span className="relative h-2 w-2 rounded-full bg-ok" />
             </span>
             <div className="min-w-0 text-[11px]">
-              <div className="font-medium">Connected collector data</div>
-              <div className="font-mono-tech text-muted-foreground">Read-only workspace</div>
+              <div className="font-medium">{bi("Connected collector data", "সংযুক্ত কালেক্টর ডেটা")}</div>
+              <div className="font-mono-tech text-muted-foreground">{bi("Read-only workspace", "শুধু-পড়ার ওয়ার্কস্পেস")}</div>
             </div>
           </div>
           <Link
@@ -94,7 +96,7 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
             className="mt-2 flex items-center gap-2 px-2 py-1 text-[11px] text-muted-foreground hover:text-foreground"
           >
             <LogOut className="h-3.5 w-3.5" />
-            Exit demo
+            {bi("Exit demo", "ডেমো থেকে বের হন")}
           </Link>
         </div>
       </aside>
@@ -107,10 +109,10 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
               <Bot className={cn("hidden h-4 w-4 shrink-0 text-primary md:block", hideSidebar && "opacity-0")} />
               <div className="min-w-0">
                 <div className="truncate text-sm font-semibold">
-                  {hideSidebar ? "DriftGuard" : "Security Operations Console"}
+                  {hideSidebar ? "DriftGuard" : bi("Security Operations Console", "সিকিউরিটি অপারেশন কনসোল")}
                 </div>
                 <div className={cn("truncate text-[11px] font-mono-tech text-muted-foreground", hideSidebar && "opacity-0")}>
-                  Live data from your connected collectors
+                  {bi("Live data from your connected collectors", "আপনার সংযুক্ত কালেক্টর থেকে লাইভ ডেটা")}
                 </div>
               </div>
             </div>
@@ -118,15 +120,15 @@ export function AppShell({ children, hideSidebar = false }: { children: ReactNod
               <span>{now}</span>
               <span className="h-4 w-px bg-border" />
               <span className="inline-flex items-center gap-1.5">
-                read-only
+                {bi("read-only", "শুধু পড়ার জন্য")}
               </span>
             </div>
             {signedIn && (
             <div className="flex items-center gap-2 rounded-md border border-border bg-panel px-2 py-1 text-[11px]">
               <span className="h-2 w-2 rounded-full bg-primary" />
-              <span className="font-medium">{role === "admin" ? "Admin" : "Analyst"}</span>
+              <span className="font-medium">{role === "admin" ? bi("Admin", "অ্যাডমিন") : bi("Analyst", "বিশ্লেষক")}</span>
               <span className="hidden font-mono-tech text-muted-foreground sm:inline">
-                {role === "admin" ? "Admin" : "Analyst"}
+                {role === "admin" ? bi("Admin", "অ্যাডমিন") : bi("Analyst", "বিশ্লেষক")}
               </span>
             </div>
             )}
