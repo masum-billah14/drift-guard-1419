@@ -15,3 +15,4 @@
 - `workspace-model.ts` contains pure real-data derivations; marketing promotional figures stay in a separate marketing-only module to prevent console leakage.
 - Preserve local passwordless demo roles as navigation state only; they do not authenticate or authorize public view reads.
 - Streaming chat reads its own public view context on each request; client messages and stored logs are untrusted inputs, not access controls or instructions.
+- All user-facing UI text is bilingual English/Bangla via `useLang().bi(en, bn)` and `LanguageToggle` from `src/lib/i18n.tsx`; the choice persists at `driftguard:lang`, sets `html[lang]`, and `html[lang="bn"]` in `src/styles.css` loads Noto Sans Bengali. Every new visible string must ship both languages; the chat endpoint accepts a `language` field to localize AI answers.
