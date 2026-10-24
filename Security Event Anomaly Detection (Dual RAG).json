@@ -1,0 +1,1718 @@
+{
+  "name": "Security Event Anomaly Detection (Dual RAG)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "security-events",
+        "options": {
+          "onlyRunIf": "={{ $json.headers['x-api-key'] === 'dg_1b1f521ca10e954be7099dfd673c12b188f1f44d2d43808a' }}"
+        }
+      },
+      "id": "5ad55ef1-b49b-4fe2-bcc1-a3a67bb2672a",
+      "name": "Receive Security Event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -128,
+        352
+      ],
+      "webhookId": "a6cfd999-3900-4c95-aa33-f6b9a21a2a22"
+    },
+    {
+      "parameters": {
+        "jsCode": "const TENANT='344d0227-a424-4c2c-b13c-7e10742c0acb';\nfunction h(s){let a=5381,b=52711;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);a=((a*33)^c)>>>0;b=((b*33)^c)>>>0;}return a.toString(16).padStart(8,'0')+b.toString(16).padStart(8,'0');}\nfunction ip(v){if(!v)return null;v=String(v).trim().replace('::ffff:','');if(v===''||v==='-')return null;if(/^[0-9]{1,3}([.][0-9]{1,3}){3}$/.test(v))return v;if(v.includes(':')&&/^[0-9a-fA-F:]+$/.test(v))return v;return null;}\nfunction recs(b){if(Array.isArray(b))return b;if(b&&Array.isArray(b.events))return b.events;if(b&&Array.isArray(b.records))return b.records;return b?[b]:[];}\nconst rows=[];let idx=0;\nfor(const it of $input.all()){\n for(const r0 of recs(it.json.body!==undefined?it.json.body:it.json)){\n  idx++;\n  const r=(r0&&r0.record)?r0.record:r0;\n  if(!r||typeof r!=='object')continue;\n  const msg=String(r.MESSAGE||r.message||r.log||r.Message||'');\n  const d=r.date||r.timestamp||r.TimeGenerated||r.time||r['@timestamp']||r._SOURCE_REALTIME_TIMESTAMP;\n  let when=new Date();\n  if(typeof d==='number'){when=new Date(d<1e11?d*1000:(d>1e14?d/1000:d));}\n  else if(d){const t=new Date(/^[0-9]+$/.test(String(d))?Number(d)/1000:d);if(!isNaN(t))when=t;}\n  const observed=when.toISOString();\n  let host=r._HOSTNAME||r.host||r.hostname||r.Computer||r.computer||'';\n  const eid=Number(r.EventID||r.EventId||r.event_id||(r.System&&r.System.EventID)||0);\n  let row=null;\n  if(eid){\n   const ins=Array.isArray(r.StringInserts)?r.StringInserts:[];\n   const g=(n,i)=>{const v=r[n]!==undefined?r[n]:(r.EventData&&r.EventData[n]!==undefined?r.EventData[n]:ins[i]);return (v===undefined||v==='-')?null:v;};\n   let user=null,addr=null,lt=null,cat='initial_access',act='authentication',out='success',svc='windows_logon';\n   if(eid===4625){user=g('TargetUserName',5);addr=g('IpAddress',19);lt=g('LogonType',10);out='failure';}\n   else if(eid===4624){user=g('TargetUserName',5);addr=g('IpAddress',18);lt=g('LogonType',8);}\n   else if(eid===4648){user=g('TargetUserName',5);addr=g('IpAddress',12);cat='credential_access';act='explicit_credentials';}\n   else if(eid===4672){user=g('SubjectUserName',1);cat='privilege_escalation';act='privileged_logon';}\n   else if(eid===4720){user=g('TargetUserName',0);cat='persistence';act='account_created';}\n   else if(eid===4740){user=g('TargetUserName',0);addr=g('CallerComputerName',1);cat='credential_access';act='account_lockout';out='failure';}\n   else continue;\n   if(String(lt)==='10')svc='rdp';else if(String(lt)==='3')svc='network_logon';else if(String(lt)==='2')svc='console';\n   row={platform:'windows',category:cat,action:act,outcome:out,actor_username:user,source_ip:ip(addr),source_service:svc,logon_type:lt,win_event_id:eid};\n  } else if(msg){\n   let m;\n   if(msg.includes('sudo')&&msg.includes('authentication failure')){m=msg.match(/user=([^ ]+)/);row={platform:'linux',category:'privilege_escalation',action:'sudo_authentication',outcome:'failure',actor_username:m?m[1]:null,source_ip:null,source_service:'sudo'};}\n   else if((m=msg.match(/sudo: +([^ ]+) : .*COMMAND=/))){row={platform:'linux',category:'privilege_escalation',action:'sudo_command',outcome:'success',actor_username:m[1],source_ip:null,source_service:'sudo'};}\n   else if((m=msg.match(/Failed (?:password|publickey|keyboard-interactive.pam) for (?:invalid user )?([^ ]+) from ([^ ]+) port/))){row={platform:'linux',category:'initial_access',action:'authentication',outcome:'failure',actor_username:m[1],source_ip:ip(m[2]),source_service:'ssh'};}\n   else if((m=msg.match(/Accepted (?:password|publickey|keyboard-interactive.pam) for ([^ ]+) from ([^ ]+) port/))){row={platform:'linux',category:'initial_access',action:'authentication',outcome:'success',actor_username:m[1],source_ip:ip(m[2]),source_service:'ssh'};}\n   else if((m=msg.match(/Invalid user ([^ ]+) from ([^ ]+)/))){row={platform:'linux',category:'initial_access',action:'authentication',outcome:'failure',actor_username:m[1],source_ip:ip(m[2]),source_service:'ssh'};}\n   else if((m=msg.match(/authentication failure;.*rhost=([^ ]*).*user=([^ ]+)/))){row={platform:'linux',category:'initial_access',action:'authentication',outcome:'failure',actor_username:m[2],source_ip:ip(m[1]),source_service:'pam'};}\n   else continue;\n   if(!host){const hm=msg.match(/^[A-Za-z]{3} +[0-9]+ +[0-9:]+ +([^ ]+) /);if(hm)host=hm[1];}\n  } else continue;\n  if(!host)host='unknown-host';\n  const payload={host:host,actor:{username:row.actor_username},action:row.action,source:{ip:row.source_ip,service:row.source_service,logon_type:row.logon_type||null},outcome:row.outcome,category:row.category,raw:msg.slice(0,400),win_event_id:row.win_event_id||null};\n  rows.push({event_id:'dg-'+row.platform+'-'+h(host+'|'+observed+'|'+(msg||eid)+'|'+idx),tenant_id:TENANT,observed_at:observed,host:host,platform:row.platform,category:row.category,action:row.action,outcome:row.outcome,actor_username:row.actor_username,source_ip:row.source_ip,source_service:row.source_service,payload:payload});\n }\n}\nreturn rows.length?[{json:{rows:rows}}]:[];"
+      },
+      "id": "d58cee08-028d-4225-95c3-9713e322c17c",
+      "name": "Parse Log Events",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://rbmdjypyjzozvgvhnyps.supabase.co/rest/v1/security_events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "on_conflict",
+              "value": "event_id"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "resolution=ignore-duplicates,return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.rows) }}",
+        "options": {}
+      },
+      "id": "8f8b3856-f378-4d38-9055-0476d65316a7",
+      "name": "Store Raw Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1120,
+        0
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "FZOijjmF7wwxcZxw",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "f95cf7f0-8a0b-446c-b89c-a65909cf9a91",
+      "name": "Every Minute",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -112,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "cutoff",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4a184d59-80e5-47b7-b7c7-79c7c5203efe",
+      "name": "Set Cutoff",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        176,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://rbmdjypyjzozvgvhnyps.supabase.co/rest/v1/security_events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "*"
+            },
+            {
+              "name": "analyzed_at",
+              "value": "is.null"
+            },
+            {
+              "name": "tenant_id",
+              "value": "eq.344d0227-a424-4c2c-b13c-7e10742c0acb"
+            },
+            {
+              "name": "event_id",
+              "value": "like.dg-*"
+            },
+            {
+              "name": "received_at",
+              "value": "=lte.{{ $json.cutoff }}"
+            },
+            {
+              "name": "order",
+              "value": "observed_at.asc"
+            },
+            {
+              "name": "limit",
+              "value": "1000"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d60c56ac-c749-4a9a-b014-38615fd0c3ce",
+      "name": "Fetch Unanalyzed Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        384,
+        64
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "FZOijjmF7wwxcZxw",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items=$input.all().map(i=>i.json).filter(e=>e&&e.event_id);\nif(!items.length)return [];\nfunction h(s){let a=5381;for(let i=0;i<s.length;i++){a=((a*33)^s.charCodeAt(i))>>>0;}return a.toString(16);}\nconst groups={};\nfor(const e of items){const key=(e.host||'?')+'|'+(e.source_ip||('user:'+(e.actor_username||'?')));if(!groups[key])groups[key]=[];groups[key].push(e);}\nconst out=[];\nfor(const key of Object.keys(groups)){\n const evs=groups[key];\n evs.sort((a,b)=>String(a.observed_at).localeCompare(String(b.observed_at)));\n const fails=evs.filter(e=>e.outcome==='failure');\n const succ=evs.filter(e=>e.outcome==='success'&&e.action==='authentication');\n const users=[...new Set(evs.map(e=>e.actor_username).filter(Boolean))];\n const failUsers=[...new Set(fails.map(e=>e.actor_username).filter(Boolean))];\n const perUser={};\n for(const e of fails){const u=e.actor_username||'?';perUser[u]=(perUser[u]||0)+1;}\n const first=evs[0],last=evs[evs.length-1];\n const secs=Math.max(1,Math.round((new Date(last.observed_at)-new Date(first.observed_at))/1000));\n const firstFail=fails.length?fails[0].observed_at:null;\n out.push({json:{id:'grp-'+h(key+'|'+first.observed_at+'|'+evs.length),host:first.host,platform:first.platform,source_ip:first.source_ip||null,window_start:first.observed_at,window_end:last.observed_at,window_seconds:secs,total_events:evs.length,failed_logins:fails.length,successful_logins:succ.length,distinct_users:users.length,users_sample:users.slice(0,10),users_with_failures:failUsers.slice(0,10),failures_per_user:perUser,success_after_failures:!!firstFail&&fails.length>=3&&succ.some(e=>String(e.observed_at)>=String(firstFail)),privileged_events:evs.filter(e=>e.category==='privilege_escalation').length,account_changes:evs.filter(e=>e.category==='persistence').length,account_lockouts:evs.filter(e=>e.action==='account_lockout').length,services:[...new Set(evs.map(e=>e.source_service).filter(Boolean))],event_ids:evs.map(e=>e.event_id).slice(0,200),sample_events:evs.slice(0,5).map(e=>({time:e.observed_at,user:e.actor_username,action:e.action,outcome:e.outcome,service:e.source_service,raw:(e.payload&&e.payload.raw)?String(e.payload.raw).slice(0,160):null}))}});\n}\nreturn out;"
+      },
+      "id": "0d999827-dab9-421d-8021-c155447bebb7",
+      "name": "Aggregate Events by Source",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "event_id",
+              "type": "string",
+              "value": "={{ ($json.body ?? $json).id ?? ($execution.id + \"-\" + $itemIndex) }}"
+            },
+            {
+              "id": "n2",
+              "name": "ingest_source",
+              "type": "string",
+              "value": "={{ $json.body ? \"webhook\" : \"scheduled_pull\" }}"
+            },
+            {
+              "id": "n3",
+              "name": "event",
+              "type": "object",
+              "value": "={{ $json.body ?? $json }}"
+            },
+            {
+              "id": "n4",
+              "name": "event_text",
+              "type": "string",
+              "value": "={{ JSON.stringify($json.body ?? $json) }}"
+            },
+            {
+              "id": "n5",
+              "name": "received_at",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4efee31c-4737-4ae0-b5e0-6074b02b86e6",
+      "name": "Normalize Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        768,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.event_id }}",
+        "options": {
+          "historySize": 50000
+        }
+      },
+      "id": "3f9b5019-0310-45a5-b5e9-4d1b19c25a68",
+      "name": "Skip Already Processed",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        992,
+        1376
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Security event:\n{{ $json.event_text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a SOC analyst. Always call the normal_behavior_kb tool first to retrieve baseline behavior similar to the event. If the event contains a pcap_path or references Zeek log files, use the Zeek tools (execzeek to process a pcap, parselogs to read conn.log, dns.log, http.log, ssl.log, notice.log) to gather real network context such as connection volume, destinations, ports and protocols. Compare the event against the baseline across identity, location, time, volume, device and action. Return verdict \"normal\" only if the event clearly matches baseline behavior; otherwise return \"abnormal\". Give a confidence from 0 to 1 and list the concrete deviations.",
+          "maxIterations": 5,
+          "forceToolCallOnFirstIteration": true
+        }
+      },
+      "id": "1f630de7-60b3-4f33-adb0-068e7eeb77ae",
+      "name": "Compare to Normal Baseline",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1056,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-6-luna"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "26244946-baac-4e2a-9ca7-3f5747340415",
+      "name": "Baseline Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        992,
+        1184
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "Gateway credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search the baseline of known NORMAL user, system and network behavior for patterns similar to this event.",
+        "tableName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "normal_behavior"
+        },
+        "topK": 6,
+        "options": {
+          "queryName": "match_normal_behavior"
+        }
+      },
+      "id": "8d160f7e-0f27-47d8-82c6-e64a0d99763f",
+      "name": "normal_behavior_kb",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        1184
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "FZOijjmF7wwxcZxw",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a2ac857c-a1a2-4f55-b816-b97501aaf328",
+      "name": "Embed Normal Query",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1120,
+        1392
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "Gateway credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "<__PLACEHOLDER_VALUE__Zeek MCP server SSE endpoint URL (publicly reachable, e.g. https://zeek-mcp.yourdomain.com/sse)__>",
+        "serverTransport": "sse",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "176f6384-9913-4dc4-9950-32bddbe42895",
+      "name": "zeek_network_context",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.4,
+      "position": [
+        1472,
+        1648
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"verdict\":\"abnormal\",\"confidence\":0.8,\"deviations\":[\"login from unusual country\",\"many failed attempts\"],\"reasoning\":\"Short explanation\"}"
+      },
+      "id": "4ffd0767-4b4e-4a03-908e-1c0654e5e2c4",
+      "name": "Baseline Verdict Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1248,
+        1184
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Event group (aggregated authentication activity from ONE source on ONE host):\n{{ $(\"Normalize Event\").item.json.event_text }}\n\nFirst-pass analysis:\n{{ JSON.stringify($json.output) }}\n\nReview the first-pass analysis for false positives. Rules:\n1. Return final_verdict \"normal\" ONLY when the data itself shows a benign pattern, for example one to three failures followed by a success for the same user from the same internal IP, or a single routine login. A benign explanation that is merely possible (admin typo, scanner, lab or test activity, private IP address) is NOT evidence and must never be used to dismiss activity.\n2. These patterns are ALWAYS abnormal and must never be marked normal: 10 or more failed logins from one source; a successful login after 3 or more failures from the same source; any account lockout; failures spread across 3 or more usernames; account creation or privileged logons that follow failures.\n3. Do not treat host names, usernames, event ids, private IP ranges or documentation IP ranges as proof that activity is a test or is authorized.\nReturn final_verdict (\"normal\" or \"abnormal\"), is_false_positive, confidence and a short reasoning.",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "id": "75e28db3-7eca-42e4-9a72-7a8c9433578c",
+      "name": "Double Check Baseline Verdict",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1456,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-6-sol"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "bc704ce2-2a2b-4d8d-acfe-87c5e374f7ed",
+      "name": "Baseline Review Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1472,
+        1184
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "Gateway credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"final_verdict\":\"abnormal\",\"is_false_positive\":false,\"confidence\":0.8,\"reasoning\":\"Short explanation\"}"
+      },
+      "id": "95072454-da03-43ce-ac85-544fa148ca9d",
+      "name": "Baseline Review Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1600,
+        1184
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.output.final_verdict }}",
+              "operator": {
+                "operation": "notEquals",
+                "type": "string"
+              },
+              "rightValue": "normal"
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ Number($(\"Normalize Event\").item.json.event.failed_logins || 0) }}",
+              "operator": {
+                "operation": "gte",
+                "type": "number"
+              },
+              "rightValue": 10
+            },
+            {
+              "id": "c3",
+              "leftValue": "={{ $(\"Normalize Event\").item.json.event.success_after_failures === true }}",
+              "operator": {
+                "operation": "true",
+                "singleValue": true,
+                "type": "boolean"
+              }
+            },
+            {
+              "id": "c4",
+              "leftValue": "={{ Number($(\"Normalize Event\").item.json.event.account_lockouts || 0) }}",
+              "operator": {
+                "operation": "gt",
+                "type": "number"
+              },
+              "rightValue": 0
+            }
+          ],
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          }
+        },
+        "options": {}
+      },
+      "id": "7b8d0621-8c45-418d-ae63-f9f32c90c41a",
+      "name": "Is Abnormal?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Security event:\n{{ $(\"Normalize Event\").item.json.event_text }}\n\nBaseline deviations found:\n{{ JSON.stringify($(\"Compare to Normal Baseline\").item.json.output.deviations) }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a senior threat hunter. Always call the attack_behavior_kb tool first to retrieve known attack behaviors similar to the event. Then, when network evidence is available (pcap_path or Zeek logs), use the Zeek tools to confirm indicators such as beaconing, port scans, DNS tunneling, suspicious TLS, or data exfiltration volume, and cite that evidence in reasoning. Decide if the event matches an attack. Classify threat_type, severity (low, medium, high, critical) and MITRE technique. Recommend only actions from this list: block_ip, terminate_session, lock_account. Extract source_ip, user_account and session_id from the event (empty string if absent).",
+          "maxIterations": 5,
+          "forceToolCallOnFirstIteration": true
+        }
+      },
+      "id": "0366a346-1a21-4e2e-821d-32ba40604836",
+      "name": "Compare to Attack Patterns",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2496,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-6-sol"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "6b2a293a-a442-4809-bd38-e9db70fbf5c6",
+      "name": "Attack Analysis Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2432,
+        912
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "Gateway credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search the library of known ATTACK behaviors, TTPs and indicators (e.g. MITRE ATT&CK techniques) similar to this event.",
+        "tableName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "attack_behavior"
+        },
+        "topK": 6,
+        "options": {
+          "queryName": "match_attack_behavior"
+        }
+      },
+      "id": "45838585-0590-4a27-9949-1526d3f2c21c",
+      "name": "attack_behavior_kb",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        2560,
+        912
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "FZOijjmF7wwxcZxw",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "afb3a566-6a87-496a-a5e4-3548e3785e93",
+      "name": "Embed Attack Query",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2560,
+        1120
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "Gateway credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "endpointUrl": "<__PLACEHOLDER_VALUE__Zeek MCP server SSE endpoint URL (publicly reachable, e.g. https://zeek-mcp.yourdomain.com/sse)__>",
+        "serverTransport": "sse",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "d803b7ad-ecdf-4ac4-a417-14fd23df3497",
+      "name": "zeek_attack_evidence",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.4,
+      "position": [
+        2688,
+        1040
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"threat_detected\":true,\"threat_type\":\"credential_stuffing\",\"severity\":\"high\",\"mitre_technique\":\"T1110.004\",\"matched_patterns\":[\"Brute force from TOR exit node\"],\"recommended_actions\":[\"block_ip\",\"terminate_session\",\"lock_account\"],\"source_ip\":\"185.220.101.4\",\"user_account\":\"alice@corp.com\",\"session_id\":\"sess_abc123\",\"reasoning\":\"Short explanation\"}"
+      },
+      "id": "814bc04e-9a84-4fca-90d0-913ecca185c2",
+      "name": "Attack Verdict Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2688,
+        912
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Event group (aggregated authentication activity from ONE source on ONE host):\n{{ $(\"Normalize Event\").item.json.event_text }}\n\nThreat analysis:\n{{ JSON.stringify($json.output) }}\n\nAct as a careful reviewer who checks the threat analysis against the data. Rules:\n1. Set confirmed_threat to true whenever the data matches the analysis. These patterns always count as confirmed threats: 10 or more failed logins from one source; a successful login after 3 or more failures from the same source; any account lockout; failures spread across 3 or more usernames.\n2. Set confirmed_threat to false only when the data itself shows a specific benign explanation. Speculation (admin typo, scanner you might own, lab or test activity, private IP address, host or user naming) is NOT enough, because attackers also use private networks and lab-like names.\n3. Keep recommended_actions limited to block_ip, terminate_session, lock_account, and only those the evidence justifies. Use lock_account and terminate_session when a login succeeded after failures.\nReturn confirmed_threat, severity, recommended_actions, confidence, false_positive_reason and a one-paragraph summary.",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "id": "30d8943c-e737-4937-8611-4d4ad5e51322",
+      "name": "Double Check Threat",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2896,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "gpt-6-sol"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "64635d5e-5908-4c70-ae57-d0dea5321731",
+      "name": "Threat Review Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2912,
+        912
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "Gateway credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"confirmed_threat\":true,\"severity\":\"high\",\"recommended_actions\":[\"block_ip\",\"terminate_session\"],\"confidence\":0.9,\"false_positive_reason\":\"\",\"summary\":\"One-paragraph incident summary\"}"
+      },
+      "id": "414c5054-e0a0-4615-9c60-d6e9982b2622",
+      "name": "Threat Review Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3040,
+        912
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "t1",
+              "leftValue": "={{ $json.output.confirmed_threat }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f221868c-9cef-4403-80cc-bd61719b9685",
+      "name": "Threat Confirmed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3248,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r1",
+              "name": "event_id",
+              "type": "string",
+              "value": "={{ $(\"Normalize Event\").item.json.event_id }}"
+            },
+            {
+              "id": "r2",
+              "name": "severity",
+              "type": "string",
+              "value": "={{ $json.output.severity }}"
+            },
+            {
+              "id": "r3",
+              "name": "threat_type",
+              "type": "string",
+              "value": "={{ $(\"Compare to Attack Patterns\").item.json.output.threat_type }}"
+            },
+            {
+              "id": "r4",
+              "name": "mitre_technique",
+              "type": "string",
+              "value": "={{ $(\"Compare to Attack Patterns\").item.json.output.mitre_technique }}"
+            },
+            {
+              "id": "r5",
+              "name": "source_ip",
+              "type": "string",
+              "value": "={{ $(\"Compare to Attack Patterns\").item.json.output.source_ip || $(\"Normalize Event\").item.json.event.source_ip || '' }}"
+            },
+            {
+              "id": "r6",
+              "name": "user_account",
+              "type": "string",
+              "value": "={{ $(\"Compare to Attack Patterns\").item.json.output.user_account }}"
+            },
+            {
+              "id": "r7",
+              "name": "session_id",
+              "type": "string",
+              "value": "={{ $(\"Compare to Attack Patterns\").item.json.output.session_id }}"
+            },
+            {
+              "id": "r8",
+              "name": "actions",
+              "type": "array",
+              "value": "={{ $json.output.recommended_actions }}"
+            },
+            {
+              "id": "r9",
+              "name": "confidence",
+              "type": "number",
+              "value": "={{ $json.output.confidence }}"
+            },
+            {
+              "id": "r10",
+              "name": "summary",
+              "type": "string",
+              "value": "={{ $json.output.summary }}"
+            },
+            {
+              "id": "r11",
+              "name": "event",
+              "type": "object",
+              "value": "={{ $(\"Normalize Event\").item.json.event }}"
+            },
+            {
+              "id": "r12",
+              "name": "detected_at",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "id": "r13",
+              "name": "classification",
+              "type": "string",
+              "value": "likely_malicious"
+            },
+            {
+              "id": "r14",
+              "name": "confidence_percent",
+              "type": "number",
+              "value": "={{ Math.round(Number($json.output.confidence) * 100) }}"
+            },
+            {
+              "id": "r15",
+              "name": "false_positive_status",
+              "type": "string",
+              "value": "unlikely"
+            },
+            {
+              "id": "r16",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $(\"Compare to Attack Patterns\").item.json.output.user_account || $(\"Normalize Event\").item.json.event.source_ip || $(\"Normalize Event\").item.json.event.host }}"
+            },
+            {
+              "id": "r17",
+              "name": "recommended_action",
+              "type": "string",
+              "value": "={{ ($json.output.recommended_actions || []).join(', ') }}"
+            },
+            {
+              "id": "r18",
+              "name": "evidence_event_ids",
+              "type": "array",
+              "value": "={{ $(\"Normalize Event\").item.json.event.event_ids || [] }}"
+            },
+            {
+              "id": "r19",
+              "name": "rag_context",
+              "type": "object",
+              "value": "={{ { matched_patterns: $(\"Compare to Attack Patterns\").item.json.output.matched_patterns, baseline_deviations: $(\"Compare to Normal Baseline\").item.json.output.deviations } }}"
+            },
+            {
+              "id": "r20",
+              "name": "investigation",
+              "type": "object",
+              "value": "={{ { model: 'driftguard-n8n-dual-rag', stage1: $(\"Compare to Normal Baseline\").item.json.output, stage1_review: $(\"Double Check Baseline Verdict\").item.json.output, stage2: $(\"Compare to Attack Patterns\").item.json.output, stage2_review: $json.output, event_summary: $(\"Normalize Event\").item.json.event } }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d35e94af-c39e-44f0-97f3-9a20786e8f8a",
+      "name": "Build Incident Report",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        3728,
+        864
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://rbmdjypyjzozvgvhnyps.supabase.co/rest/v1/security_incidents",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "on_conflict",
+              "value": "incident_key"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ incident_key: $json.event_id, tenant_id: '344d0227-a424-4c2c-b13c-7e10742c0acb', signal_id: $json.mitre_technique || 'DRIFTGUARD_THREAT', severity: String($json.severity).toLowerCase(), status: (['high','critical'].includes(String($json.severity).toLowerCase()) && Number($json.confidence) >= 0.8) ? 'investigating' : 'review_required', classification: $json.classification, confidence_percent: $json.confidence_percent, false_positive_status: $json.false_positive_status, subject: $json.subject || 'unknown', source_ip: ($json.source_ip && /^[0-9a-fA-F:.]+$/.test($json.source_ip)) ? $json.source_ip : null, summary: $json.summary, recommended_action: $json.recommended_action, evidence_event_ids: $json.evidence_event_ids, rag_context: $json.rag_context, investigation: $json.investigation }) }}",
+        "options": {}
+      },
+      "id": "f6235b51-c474-4ca4-856c-9137036efa30",
+      "name": "Log Incident to Dashboard",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3952,
+        672
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "supabaseApi": {
+          "id": "FZOijjmF7wwxcZxw",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "8863841769",
+        "text": "=<b>Security threat ({{ $json.severity }})</b>\nType: {{ $json.threat_type }} ({{ $json.mitre_technique }})\nUser: {{ $json.user_account }}\nIP: {{ $json.source_ip }}\nActions: {{ $json.actions.join(\", \") }}\n\n{{ $json.summary }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "e534112f-1ad8-4cb9-8f91-6063f91c6ddc",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3952,
+        864
+      ],
+      "webhookId": "2a89bbcf-04b6-439c-b61d-a15d4151f535",
+      "disabled": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fromEmail": "ahmed.abdullah072003@gmail.com",
+        "toEmail": "masumcse1419@gmail.com",
+        "subject": "=[{{ $json.severity }}] Security threat: {{ $json.threat_type }} - {{ $json.user_account }}",
+        "html": "=<h3>Confirmed security threat</h3><p><b>Severity:</b> {{ $json.severity }}<br><b>Type:</b> {{ $json.threat_type }} ({{ $json.mitre_technique }})<br><b>User:</b> {{ $json.user_account }}<br><b>Source IP:</b> {{ $json.source_ip }}<br><b>Session:</b> {{ $json.session_id }}<br><b>Actions taken:</b> {{ $json.actions.join(\", \") }}<br><b>Confidence:</b> {{ $json.confidence }}</p><p>{{ $json.summary }}</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "2a9cebc0-a038-44d1-aefb-fa0128380e88",
+      "name": "Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        3952,
+        1056
+      ],
+      "webhookId": "952f5930-96aa-45ad-b757-8c499c27583c",
+      "credentials": {
+        "smtp": {
+          "id": "47kObbEdAOVJORaB",
+          "name": "SMTP account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a1",
+              "leftValue": "={{ [\"high\", \"critical\"].includes(String($json.severity).toLowerCase()) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "a2",
+              "leftValue": "={{ Number($json.confidence) }}",
+              "rightValue": 0.8,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b050095f-c366-471e-9c16-6bb9802d70e6",
+      "name": "High Severity & Confident?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3952,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.actions }}",
+                    "rightValue": "block_ip",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "block_ip"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.actions }}",
+                    "rightValue": "terminate_session",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "terminate_session"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.actions }}",
+                    "rightValue": "lock_account",
+                    "operator": {
+                      "type": "array",
+                      "operation": "contains",
+                      "rightType": "any"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "lock_account"
+            }
+          ]
+        },
+        "options": {
+          "allMatchingOutputs": true
+        }
+      },
+      "id": "49aa9d86-b476-4fcf-aded-dbf55cb757ab",
+      "name": "Route Response Actions",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3952,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "<__PLACEHOLDER_VALUE__Firewall / WAF block-IP API URL__>",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ ip: $json.source_ip, reason: $json.threat_type, incident_id: $json.event_id }) }}",
+        "options": {}
+      },
+      "id": "8b08e467-efd8-4752-97bb-1e05d828d4d9",
+      "name": "Block IP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4176,
+        976
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "<__PLACEHOLDER_VALUE__Identity provider terminate-session API URL__>",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ session_id: $json.session_id, user: $json.user_account, incident_id: $json.event_id }) }}",
+        "options": {}
+      },
+      "id": "19fc3ab9-6655-4b38-963b-96cc38ee5ccf",
+      "name": "Terminate Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4176,
+        1168
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "<__PLACEHOLDER_VALUE__Identity provider lock-account API URL__>",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ user: $json.user_account, reason: $json.threat_type, incident_id: $json.event_id }) }}",
+        "options": {}
+      },
+      "id": "348b1ffd-c375-4966-8f7d-a651949c69a3",
+      "name": "Lock Account",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4176,
+        1360
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://rbmdjypyjzozvgvhnyps.supabase.co/rest/v1/rag_audit_events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ tenant_id: '344d0227-a424-4c2c-b13c-7e10742c0acb', actor_open_id: 'n8n:driftguard', action: 'event_group_verdict', target_type: 'event_group', target_id: $(\"Normalize Event\").item.json.event_id, details: { status: ($json.output.final_verdict ? 'normal' : 'false_positive'), reason: ($json.output.reasoning ?? $json.output.false_positive_reason ?? ''), event: $(\"Normalize Event\").item.json.event } }) }}",
+        "options": {}
+      },
+      "id": "aa2c72a6-7c3b-4b7b-a07f-1d4034536c4f",
+      "name": "Log Benign Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2624,
+        96
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "supabaseApi": {
+          "id": "FZOijjmF7wwxcZxw",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "https://rbmdjypyjzozvgvhnyps.supabase.co/rest/v1/security_events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "analyzed_at",
+              "value": "is.null"
+            },
+            {
+              "name": "tenant_id",
+              "value": "eq.344d0227-a424-4c2c-b13c-7e10742c0acb"
+            },
+            {
+              "name": "event_id",
+              "value": "like.dg-*"
+            },
+            {
+              "name": "received_at",
+              "value": "=lte.{{ $('Set Cutoff').first().json.cutoff }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ analyzed_at: $now.toISO() }) }}",
+        "options": {}
+      },
+      "id": "1f003d74-65d4-4608-9cf7-bc537753d7a0",
+      "name": "Mark Events Analyzed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1056,
+        368
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "FZOijjmF7wwxcZxw",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive Security Event": {
+      "main": [
+        [
+          {
+            "node": "Parse Log Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Log Events": {
+      "main": [
+        [
+          {
+            "node": "Store Raw Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Minute": {
+      "main": [
+        [
+          {
+            "node": "Set Cutoff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Cutoff": {
+      "main": [
+        [
+          {
+            "node": "Fetch Unanalyzed Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Unanalyzed Events": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Events by Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Events by Source": {
+      "main": [
+        [
+          {
+            "node": "Normalize Event",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mark Events Analyzed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Event": {
+      "main": [
+        [
+          {
+            "node": "Skip Already Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip Already Processed": {
+      "main": [
+        [
+          {
+            "node": "Compare to Normal Baseline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare to Normal Baseline": {
+      "main": [
+        [
+          {
+            "node": "Double Check Baseline Verdict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baseline Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Compare to Normal Baseline",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normal_behavior_kb": {
+      "ai_tool": [
+        [
+          {
+            "node": "Compare to Normal Baseline",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embed Normal Query": {
+      "ai_embedding": [
+        [
+          {
+            "node": "normal_behavior_kb",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "zeek_network_context": {
+      "ai_tool": [
+        [
+          {
+            "node": "Compare to Normal Baseline",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baseline Verdict Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Compare to Normal Baseline",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Double Check Baseline Verdict": {
+      "main": [
+        [
+          {
+            "node": "Is Abnormal?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baseline Review Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Double Check Baseline Verdict",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baseline Review Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Double Check Baseline Verdict",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Abnormal?": {
+      "main": [
+        [
+          {
+            "node": "Compare to Attack Patterns",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Benign Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare to Attack Patterns": {
+      "main": [
+        [
+          {
+            "node": "Double Check Threat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attack Analysis Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Compare to Attack Patterns",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "attack_behavior_kb": {
+      "ai_tool": [
+        [
+          {
+            "node": "Compare to Attack Patterns",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embed Attack Query": {
+      "ai_embedding": [
+        [
+          {
+            "node": "attack_behavior_kb",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "zeek_attack_evidence": {
+      "ai_tool": [
+        [
+          {
+            "node": "Compare to Attack Patterns",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attack Verdict Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Compare to Attack Patterns",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Double Check Threat": {
+      "main": [
+        [
+          {
+            "node": "Threat Confirmed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threat Review Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Double Check Threat",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threat Review Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Double Check Threat",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Threat Confirmed?": {
+      "main": [
+        [
+          {
+            "node": "Build Incident Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Benign Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Incident Report": {
+      "main": [
+        [
+          {
+            "node": "Log Incident to Dashboard",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "High Severity & Confident?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "High Severity & Confident?": {
+      "main": [
+        [
+          {
+            "node": "Route Response Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Response Actions": {
+      "main": [
+        [
+          {
+            "node": "Block IP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Terminate Session",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lock Account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "093b57bd-ecda-441a-8d4a-38466a746f98",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp",
+    "instanceId": "b8b7ad847519ef41da54d7636a6dae8c325d0df333eb1685d16aa1071959efe5"
+  },
+  "nodeGroups": [
+    {
+      "id": "24c0509a-3c95-4dbc-8a2a-9a6b1ef7747c",
+      "name": "Collect log events",
+      "nodeIds": [
+        "d58cee08-028d-4225-95c3-9713e322c17c",
+        "8f8b3856-f378-4d38-9055-0476d65316a7"
+      ],
+      "description": "Webhook logs from Linux and Windows collectors are parsed and stored as raw events in Supabase"
+    },
+    {
+      "id": "c3adef4a-e162-4ff6-9851-4e0ee21993cc",
+      "name": "Pull scheduled events",
+      "nodeIds": [
+        "4a184d59-80e5-47b7-b7c7-79c7c5203efe",
+        "d60c56ac-c749-4a9a-b014-38615fd0c3ce",
+        "0d999827-dab9-421d-8021-c155447bebb7"
+      ],
+      "description": "Every minute, fetches new stored events and groups them by host and source IP"
+    },
+    {
+      "id": "ff85fbfa-90a1-4a41-9d0b-3bdc904db2cb",
+      "name": "Check normal baseline",
+      "nodeIds": [
+        "4efee31c-4737-4ae0-b5e0-6074b02b86e6",
+        "3f9b5019-0310-45a5-b5e9-4d1b19c25a68",
+        "1f630de7-60b3-4f33-adb0-068e7eeb77ae",
+        "26244946-baac-4e2a-9ca7-3f5747340415",
+        "8d160f7e-0f27-47d8-82c6-e64a0d99763f",
+        "a2ac857c-a1a2-4f55-b816-b97501aaf328",
+        "176f6384-9913-4dc4-9950-32bddbe42895",
+        "4ffd0767-4b4e-4a03-908e-1c0654e5e2c4",
+        "75e28db3-7eca-42e4-9a72-7a8c9433578c",
+        "bc704ce2-2a2b-4d8d-acfe-87c5e374f7ed",
+        "95072454-da03-43ce-ac85-544fa148ca9d",
+        "7b8d0621-8c45-418d-ae63-f9f32c90c41a"
+      ],
+      "description": "Standardizes events, skips repeats, compares each to normal behavior, then double-checks"
+    },
+    {
+      "id": "530a6fc0-4e20-415a-8e42-ccce96e78f53",
+      "name": "Match attack patterns",
+      "nodeIds": [
+        "0366a346-1a21-4e2e-821d-32ba40604836",
+        "6b2a293a-a442-4809-bd38-e9db70fbf5c6",
+        "45838585-0590-4a27-9949-1526d3f2c21c",
+        "afb3a566-6a87-496a-a5e4-3548e3785e93",
+        "d803b7ad-ecdf-4ac4-a417-14fd23df3497",
+        "814bc04e-9a84-4fca-90d0-913ecca185c2",
+        "30d8943c-e737-4937-8611-4d4ad5e51322",
+        "64635d5e-5908-4c70-ae57-d0dea5321731",
+        "414c5054-e0a0-4615-9c60-d6e9982b2622",
+        "f221868c-9cef-4403-80cc-bd61719b9685"
+      ],
+      "description": "Abnormal events only: matched against known attacks, then reviewed again to rule out false positives"
+    },
+    {
+      "id": "f490a7f2-ff54-4a4c-b873-a0eaf9d464c5",
+      "name": "Respond to threat",
+      "nodeIds": [
+        "d35e94af-c39e-44f0-97f3-9a20786e8f8a",
+        "f6235b51-c474-4ca4-856c-9137036efa30",
+        "e534112f-1ad8-4cb9-8f91-6063f91c6ddc",
+        "2a9cebc0-a038-44d1-aefb-fa0128380e88",
+        "b050095f-c366-471e-9c16-6bb9802d70e6",
+        "49aa9d86-b476-4fcf-aded-dbf55cb757ab",
+        "8b08e467-efd8-4752-97bb-1e05d828d4d9",
+        "19fc3ab9-6655-4b38-963b-96cc38ee5ccf",
+        "348b1ffd-c375-4966-8f7d-a651949c69a3"
+      ],
+      "description": "Confirmed threats are logged to Supabase and alerted; only high-severity, high-confidence ones trigger containment"
+    }
+  ],
+  "id": "tC1d7JSvtqfGa6TP",
+  "tags": []
+}
